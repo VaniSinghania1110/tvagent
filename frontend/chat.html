@@ -514,8 +514,13 @@
           <div class="header-avatar">${avatarHtml}</div>
           <div>
             <div class="header-name">${activeBuddy.name} <span style="color:#1DA1F2; font-size:13px;" title="Verified Buddy">✓</span></div>
-            <div class="header-sub">📍 ${activeBuddy.destination || 'Worldwide Explorer'} • Confirmed Travel Buddy</div>
+            <div class="header-sub">📍 ${activeBuddy.destination || 'Worldwide Explorer'} • Confirmed Connection</div>
           </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="btn-send" onclick="startBuddyCall('voice')" style="padding:8px 14px; font-size:12.5px; background:#2E7D32; border-radius:10px;" title="Call">📞 Call</button>
+          <button type="button" class="btn-send" onclick="startBuddyCall('video')" style="padding:8px 14px; font-size:12.5px; background:#123A42; border-radius:10px;" title="Video Call">📹 Video</button>
+          <button type="button" class="btn-send" onclick="askAiInBuddyChat()" style="padding:8px 14px; font-size:12.5px; background:linear-gradient(135deg, var(--gold), #D48806); color:#0B2027; border-radius:10px; font-weight:700;" title="Ask AI Copilot">✨ Ask AI</button>
         </div>
       </div>
 
@@ -637,5 +642,100 @@
   renderUserHeader();
   loadBuddiesFromBackendAndLocal();
 </script>
+
+<!-- LIVE CALL MODAL FOR CHAT -->
+<div class="modal-overlay" id="chat-live-call-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,32,39,0.8); backdrop-filter:blur(6px); z-index:999999; align-items:center; justify-content:center;">
+  <div style="width:380px; max-width:92%; background:#0B2027; border:1.5px solid rgba(201,162,39,0.4); border-radius:24px; padding:32px 24px; text-align:center; color:#FFF; box-shadow:0 30px 80px rgba(0,0,0,0.6);">
+    <div style="width:80px; height:80px; border-radius:50%; margin:0 auto 16px; background:linear-gradient(135deg, var(--gold), #E8874A); display:flex; align-items:center; justify-content:center; font-size:32px; color:#FFF;" id="chat-call-avatar">T</div>
+    <h3 style="margin:0 0 4px; font-family:'Fraunces', serif; font-size:20px;" id="chat-call-name">Contact</h3>
+    <div style="font-size:12px; color:rgba(253,235,211,0.7); margin-bottom:12px;" id="chat-call-sub">Voice Call</div>
+    <div style="font-family:'JetBrains Mono', monospace; font-size:17px; font-weight:600; color:var(--gold); margin-bottom:24px;" id="chat-call-status">Connecting…</div>
+    <div style="display:flex; justify-content:center; gap:16px;">
+      <button type="button" onclick="endBuddyCall()" style="width:52px; height:52px; border-radius:50%; background:#D6555A; border:none; color:#FFF; font-size:22px; cursor:pointer;" title="End Call">🔴</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let buddyCallInterval = null;
+  let buddyCallSeconds = 0;
+
+  function startBuddyCall(type) {
+    if (!activeBuddy) return;
+    const modal = document.getElementById('chat-live-call-modal');
+    const nameEl = document.getElementById('chat-call-name');
+    const avatarEl = document.getElementById('chat-call-avatar');
+    const subEl = document.getElementById('chat-call-sub');
+    const statusEl = document.getElementById('chat-call-status');
+
+    if (modal) {
+      modal.style.display = 'flex';
+    }
+    if (nameEl) nameEl.textContent = activeBuddy.name;
+    if (avatarEl) avatarEl.textContent = (activeBuddy.name || 'T').charAt(0).toUpperCase();
+    if (subEl) subEl.textContent = `${type === 'video' ? '📹 Video Call' : '📞 Voice Call'} • Live Connection`;
+    if (statusEl) statusEl.textContent = 'Calling…';
+
+    buddyCallSeconds = 0;
+    setTimeout(() => {
+      if (statusEl) statusEl.textContent = 'Connected • 00:00';
+      buddyCallInterval = setInterval(() => {
+        buddyCallSeconds++;
+        const m = String(Math.floor(buddyCallSeconds/60)).padStart(2,'0');
+        const s = String(buddyCallSeconds%60).padStart(2,'0');
+        if (statusEl) statusEl.textContent = `Connected • ${m}:${s}`;
+      }, 1000);
+    }, 2000);
+  }
+
+  function endBuddyCall() {
+    if (buddyCallInterval) clearInterval(buddyCallInterval);
+    buddyCallInterval = null;
+    const modal = document.getElementById('chat-live-call-modal');
+    if (modal) modal.style.display = 'none';
+
+    const m = Math.floor(buddyCallSeconds/60);
+    const s = buddyCallSeconds%60;
+    const duration = buddyCallSeconds > 0 ? `${m}m ${s}s` : 'Missed';
+
+    if (activeBuddy) {
+      const callMsg = `📞 Voice Call ended • Duration: ${duration} • ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+      sendMessage(callMsg);
+    }
+  }
+
+  async function askAiInBuddyChat() {
+    const q = prompt("Ask TravelVerse AI Copilot (AI automatically knows your trip and buddy context):", "Suggest a recommended day-by-day plan for our trip");
+    if (!q) return;
+
+    const input = document.getElementById('chat-text-input');
+    if (input) input.value = "⏳ AI is thinking...";
+
+    try {
+      const res = await fetch(`${API_BASE}/chat-ai-assistant`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: q,
+          traveller_name: user.name || user.username || "Traveller",
+          traveller_email: user.email || "",
+          agent_name: activeBuddy.name,
+          agent_agency: activeBuddy.agency_name || "Travel Host",
+          destination: activeBuddy.destination || "Destination",
+          trip_title: activeBuddy.tripTitle || activeBuddy.destination || "",
+          recent_messages: [],
+          sender_role: "traveller"
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (input) input.value = (data.reply || "").replace(/\n/g, ' ');
+        return;
+      }
+    } catch(e) {}
+    if (input) input.value = `✨ AI Advice for ${activeBuddy.destination || 'your trip'}: Coordinate dates and check acclimatization requirements.`;
+  }
+</script>
+
 </body>
 </html>

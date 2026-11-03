@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Expedition Itinerary & Departure Dossier — TravelVerse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-cream: #F5EFEB;
+      --card-white: #FFFFFF;
+      --ink: #17242A;
+      --ink-soft: #5E6D74;
+      --gold: #C9A227;
+      --gold-dark: #A47E14;
+      --gold-light: rgba(201, 162, 39, 0.12);
+      --forest: #166534;
+      --forest-bg: #F0FDF4;
+      --rust: #991B1B;
+      --rust-bg: #FEF2F2;
+      --line: rgba(23, 36, 42, 0.12);
+      --deep-night: #0B2027;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-cream);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      color: var(--ink);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TOP ACTION BAR (Hidden in Print) */
+    .top-action-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11, 32, 39, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid var(--gold);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #FFF;
+      text-decoration: none;
+    }
+    .brand-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: var(--gold-light);
+      color: #E5C358;
+      border: 1px solid rgba(201,162,39,0.35);
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+    }
+    .action-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-act {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+      color: #FFF;
+      box-shadow: 0 3px 12px rgba(201,162,39,0.35);
+    }
+    .btn-gold:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-outline-light {
+      background: rgba(255,255,255,0.08);
+      color: #FFF;
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+    .btn-outline-light:hover { background: rgba(255,255,255,0.18); }
+
+    /* MAIN DOSSIER WRAPPER */
+    .dossier-wrapper {
+      max-width: 920px;
+      margin: 32px auto 60px;
+      padding: 0 16px;
+    }
+
+    /* PASSENGER RESERVATION BANNER */
+    .passenger-voucher-banner {
+      background: linear-gradient(135deg, #FFFDF8 0%, #FAF6EE 100%);
+      border: 1.5px solid var(--gold);
+      border-radius: 16px;
+      padding: 16px 22px;
+      margin-bottom: 22px;
+      box-shadow: 0 6px 20px rgba(201,162,39,0.12);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .voucher-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold-dark);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .voucher-guest {
+      font-family: 'Fraunces', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .voucher-pills {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .badge-ref {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 12px;
+      background: var(--deep-night);
+      color: #E5C358;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .badge-status-confirmed {
+      background: #D1FAE5;
+      color: #065F46;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* OFFICIAL DOCUMENT CARD */
+    .document-card {
+      background: var(--card-white);
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 48px rgba(23,36,42,0.08);
+      overflow: hidden;
+    }
+
+    /* DOCUMENT OFFICIAL HEADER */
+    .doc-official-header {
+      background: var(--deep-night);
+      color: #FFF;
+      padding: 24px 32px;
+      border-bottom: 4px solid var(--gold);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .doc-badge-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #E5C358;
+      background: rgba(201,162,39,0.18);
+      padding: 3px 10px;
+      border-radius: 99px;
+      border: 1px solid rgba(201,162,39,0.3);
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .doc-main-title {
+      font-family: 'Fraunces', serif;
+      font-size: 21px;
+      font-weight: 700;
+      margin: 0;
+      color: #FFF;
+      letter-spacing: -0.3px;
+    }
+    .doc-host-credentials {
+      text-align: right;
+    }
+    .host-cert-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.16);
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      color: #FFF;
+      font-weight: 600;
+    }
+
+    /* HERO COVER */
+    .doc-hero {
+      position: relative;
+      min-height: 280px;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: flex-end;
+      padding: 32px;
+    }
+    .doc-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(11,32,39,0.1) 0%, rgba(11,32,39,0.88) 100%);
+    }
+    .doc-hero-content {
+      position: relative;
+      z-index: 2;
+      color: #FFF;
+      max-width: 760px;
+    }
+    .hero-cat-badge {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--deep-night);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    .hero-title {
+      font-family: 'Fraunces', serif;
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0 0 8px;
+      color: #FFFFFF;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .hero-tagline {
+      font-size: 15px;
+      color: rgba(255,255,255,0.92);
+      margin: 0 0 16px;
+      line-height: 1.5;
+      font-style: italic;
+    }
+    .hero-meta-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+    .hero-meta-pill {
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(8px);
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hero-price-pill {
+      background: #FFFFFF;
+      color: var(--deep-night);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    /* DOCUMENT BODY CONTENT */
+    .doc-body {
+      padding: 32px;
+    }
+
+    /* SPECS GRID (6 CARDS) */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .spec-card {
+      background: #FAF8F5;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .spec-icon {
+      font-size: 20px;
+      line-height: 1;
+      padding: 8px;
+      background: #FFFFFF;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+    }
+    .spec-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--ink-soft);
+      margin-bottom: 2px;
+    }
+    .spec-value {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    /* SECTION TITLES */
+    .section-title {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin: 32px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--gold-light);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+    }
+    .section-title span.badge-num {
+      background: var(--gold);
+      color: #FFF;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* NARRATIVE TEXT */
+    .narrative-box {
+      background: #FFFDF9;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--gold);
+      border-radius: 0 14px 14px 0;
+      padding: 20px 24px;
+      font-size: 14.5px;
+      line-height: 1.7;
+      color: #2D3748;
+      margin-bottom: 28px;
+    }
+
+    /* DAY-BY-DAY TIMELINE */
+    .itinerary-timeline {
+      position: relative;
+      margin: 24px 0 36px 8px;
+      padding-left: 32px;
+      border-left: 2px dashed rgba(201,162,39,0.5);
+    }
+    .day-node {
+      position: relative;
+      margin-bottom: 28px;
+    }
+    .day-node:last-child {
+      margin-bottom: 0;
+    }
+    .day-marker {
+      position: absolute;
+      left: -43px;
+      top: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #FFF;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 4px #FFF;
+      border: 1px solid var(--gold-dark);
+    }
+    .day-card {
+      background: #FFFFFF;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+    .day-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .day-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold-dark);
+      background: var(--gold-light);
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .day-title {
+      font-family: 'Fraunces', serif;
+      font-size: 16.5px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0;
+      flex: 1;
+      min-width: 200px;
+    }
+    .day-narrative {
+      font-size: 13.5px;
+      color: #4A5568;
+      line-height: 1.6;
+      margin: 8px 0 14px;
+    }
+    .day-meta-footer {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      padding-top: 10px;
+      font-size: 12px;
+    }
+    .day-meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #F7FAFC;
+      border: 1px solid #E2E8F0;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-weight: 600;
+      color: #4A5568;
+    }
+
+    /* INCLUSIONS & EXCLUSIONS 2-COL */
+    .inc-exc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 640px) {
+      .inc-exc-grid { grid-template-columns: 1fr; }
+    }
+    .inc-box {
+      background: var(--forest-bg);
+      border: 1px solid #BBF7D0;
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+    .inc-box-head {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--forest);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .exc-box {
+      background: var(--rust-bg);
+      border: 1px solid #FECACA;
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+    .exc-box-head {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--rust);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .bullet-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .bullet-list li {
+      padding: 4px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    /* LOGISTICS & ADVISORY */
+    .logistics-card {
+      background: #FAF8F5;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+    .logistics-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .logistics-row:last-child { margin-bottom: 0; }
+    .log-icon {
+      font-size: 18px;
+      padding: 8px;
+      background: #FFF;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    .log-content { flex: 1; }
+    .log-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 2px;
+    }
+    .log-text {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* PACKING TAGS */
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .tag-pill {
+      font-size: 12px;
+      background: #FFF;
+      border: 1px solid var(--line);
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* OFFICIAL SIGN-OFF FOOTER */
+    .doc-signoff {
+      border-top: 2px solid var(--line);
+      padding-top: 24px;
+      margin-top: 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .signoff-agent {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .agent-avatar-stamp {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--deep-night), #164E63);
+      color: #E5C358;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fraunces', serif;
+      font-size: 22px;
+      font-weight: 700;
+      border: 2px solid var(--gold);
+    }
+    .seal-box {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--ink-soft);
+    }
+    .official-seal-stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold-light);
+      border: 1px dashed var(--gold);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      color: var(--gold-dark);
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      body { background: #FFFFFF; font-size: 12pt; }
+      .top-action-bar { display: none !important; }
+      .dossier-wrapper { max-width: 100%; margin: 0; padding: 0; }
+      .document-card { border: none; box-shadow: none; border-radius: 0; }
+      .day-card { break-inside: avoid; }
+      .spec-card { break-inside: avoid; }
+      .inc-box, .exc-box { break-inside: avoid; }
+      .narrative-box { break-inside: avoid; }
+      @page {
+        size: A4;
+        margin: 12mm 15mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP ACTION BAR -->
+  <header class="top-action-bar">
+    <a href="agent.html#view-trips" class="brand-group">
+      <span class="brand-logo">✈️ TravelVerse</span>
+      <span class="brand-tag">Official Expedition Dossier</span>
+    </a>
+    <div class="action-btn-group">
+      <a href="/trip-itinerary.pdf?trip_id=110" id="btn-download-pdf" target="_blank" class="btn-act btn-gold" title="Download Official Vector PDF Document">
+        <span>📄</span> Download PDF Brochure
+      </a>
+      <button type="button" class="btn-act btn-outline-light" onclick="window.print()" title="Print Voucher">
+        <span>🖨️</span> Print
+      </button>
+      <a href="agent.html#view-trips" class="btn-act btn-outline-light" id="btn-group-chat">
+        <span>👥</span> Departure Group Chat
+      </a>
+      <a href="agent.html" class="btn-act btn-outline-light">
+        <span>↩️</span> Back to Marketplace
+      </a>
+    </div>
+  </header>
+
+  <main class="dossier-wrapper">
+
+    <!-- OPTIONAL PERSONALIZED RESERVATION VOUCHER BANNER -->
+    <div class="passenger-voucher-banner" id="passenger-voucher-banner" style="display:none;">
+      <div>
+        <div class="voucher-title">VERIFIED GUEST RESERVATION VOUCHER</div>
+        <div class="voucher-guest" id="voucher-guest-name">Valued Traveller</div>
+        <div style="font-size:12.5px; color:var(--ink-soft); margin-top:2px;" id="voucher-details">
+          Seats: 1 Confirmed Seat(s) • Date Issued: Recent
+        </div>
+      </div>
+      <div class="voucher-pills">
+        <span class="badge-ref" id="voucher-booking-ref">TV-REF-000000</span>
+        <span class="badge-status-confirmed">✓ RESERVATION CONFIRMED</span>
+      </div>
+    </div>
+
+    <!-- DOCUMENT CARD -->
+    <article class="document-card" id="printable-dossier">
+
+      <!-- OFFICIAL DOCUMENT HEADER -->
+      <div class="doc-official-header">
+        <div>
+          <span class="doc-badge-pill">TravelVerse Certified Expedition</span>
+          <h1 class="doc-main-title">Official Expedition Itinerary & Dossier</h1>
+          <div style="font-size:12px; color:rgba(255,255,255,0.7); margin-top:2px;">
+            Document Security ID: <span style="font-family:'JetBrains Mono', monospace; color:#E5C358;" id="doc-id">TV-EXP-110</span>
+          </div>
+        </div>
+        <div class="doc-host-credentials">
+          <div class="host-cert-badge">
+            <span>🛡️</span>
+            <div>
+              <div style="font-size:11px; text-transform:uppercase; color:#E5C358; letter-spacing:0.5px;">Certified Host Agency</div>
+              <strong id="doc-host-agency">vani_travels • Lead Guide</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HERO COVER -->
+      <div class="doc-hero" id="doc-hero" style="background-image: url('https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=1200&q=80');">
+        <div class="doc-hero-content">
+          <span class="hero-cat-badge" id="doc-category">Cultural & Heritage</span>
+          <h2 class="hero-title" id="doc-title">Royal Udaipur & Mewar Kingdom Heritage Circuit</h2>
+          <p class="hero-tagline" id="doc-tagline">An intimate journey through grand lake palaces, sunset boat cruises, and vibrant Mewari artisan bazaars</p>
+          <div class="hero-meta-bar">
+            <span class="hero-meta-pill">📍 <span id="doc-dest">Udaipur, Rajasthan, India</span></span>
+            <span class="hero-meta-pill">🗓️ <span id="doc-dates">Upcoming Departure</span></span>
+            <span class="hero-meta-pill">⏱️ <span id="doc-duration-pill">2 Days</span></span>
+            <span class="hero-price-pill" id="doc-price">$200 USD / Person</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="doc-body">
+
+        <!-- 6-METRIC SPECS GRID -->
+        <div class="specs-grid">
+          <div class="spec-card">
+            <div class="spec-icon">⏱️</div>
+            <div>
+              <div class="spec-label">Duration & Pacing</div>
+              <div class="spec-value" id="spec-duration">2 Days / 1 Night</div>
+            </div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-icon">🧗</div>
+            <div>
+              <div class="spec-label">Physical Difficulty</div>
+              <div class="spec-value" id="spec-difficulty">Moderate</div>
+            </div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-icon">👥</div>
+            <div>
+              <div class="spec-label">Group Capacity</div>
+              <div class="spec-value" id="spec-capacity">Max 15 Travellers</div>
+            </div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-icon">🌤️</div>
+            <div>
+              <div class="spec-label">Optimal Season</div>
+              <div class="spec-value" id="spec-season">Oct – Mar (Sunny & Pleasant)</div>
+            </div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-icon">🏨</div>
+            <div>
+              <div class="spec-label">Stay Standard</div>
+              <div class="spec-value" id="spec-stay">4-Star Heritage Haveli</div>
+            </div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-icon">🚙</div>
+            <div>
+              <div class="spec-label">Transit Logistics</div>
+              <div class="spec-value" id="spec-transit">Private AC Coach & Boat</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPEDITION OVERVIEW -->
+        <h3 class="section-title">
+          <span>🗺️</span> Overview & Expedition Notes
+        </h3>
+        <div class="narrative-box" id="doc-description">
+          Immerse yourself in an extraordinary curated expedition across Udaipur, hosted with distinction by our certified guides. Designed for discerning travellers who value deep cultural authenticity, bespoke comfort, and seamless ground logistics.
+        </div>
+
+        <!-- COMPREHENSIVE DAY-BY-DAY ITINERARY -->
+        <h3 class="section-title">
+          <span>🗓️</span> Day-by-Day Expedition Itinerary
+          <span class="badge-num" id="itinerary-days-badge">2 Days</span>
+        </h3>
+        <div class="itinerary-timeline" id="itinerary-timeline">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- INCLUSIONS & EXCLUSIONS -->
+        <h3 class="section-title">
+          <span>📋</span> Package Parameters & Inclusions
+        </h3>
+        <div class="inc-exc-grid">
+          <div class="inc-box">
+            <div class="inc-box-head">
+              <span>✓</span> Guaranteed Inclusions
+            </div>
+            <ul class="bullet-list" id="inclusions-list">
+              <!-- Populated by JS -->
+            </ul>
+          </div>
+          <div class="exc-box">
+            <div class="exc-box-head">
+              <span>✕</span> What's Not Included
+            </div>
+            <ul class="bullet-list" id="exclusions-list">
+              <!-- Populated by JS -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- RENDEZVOUS & DEPARTURE LOGISTICS -->
+        <h3 class="section-title">
+          <span>📍</span> Rendezvous & Departure Logistics
+        </h3>
+        <div class="logistics-card">
+          <div class="logistics-row">
+            <div class="log-icon">🏁</div>
+            <div class="log-content">
+              <div class="log-title">Meeting Point & Reporting Time</div>
+              <div class="log-text" id="doc-meeting-point">09:00 AM at Udaipur Railway Station VIP Lounge / Airport Arrivals Gate</div>
+            </div>
+          </div>
+          <div class="logistics-row">
+            <div class="log-icon">🛬</div>
+            <div class="log-content">
+              <div class="log-title">Concluding Drop-off Point</div>
+              <div class="log-text" id="doc-dropoff-point">05:30 PM at Udaipur Airport / Railway Station</div>
+            </div>
+          </div>
+          <div class="logistics-row">
+            <div class="log-icon">🎒</div>
+            <div class="log-content">
+              <div class="log-title">Mandatory Packing Checklist</div>
+              <div class="tag-cloud" id="packing-tags">
+                <span class="tag-pill">Comfortable walking shoes</span>
+                <span class="tag-pill">Light warm jacket for evenings</span>
+                <span class="tag-pill">UV sunglasses & sun hat</span>
+                <span class="tag-pill">Valid Photo ID Card</span>
+              </div>
+            </div>
+          </div>
+          <div class="logistics-row">
+            <div class="log-icon">🩺</div>
+            <div class="log-content">
+              <div class="log-title">Medical & Fitness Advisory</div>
+              <div class="log-text" id="doc-health-advisory" style="font-weight:400; font-size:13px; color:#4A5568;">
+                Moderate walking across palace stairways and cobbled lanes. Please notify the host guide in advance of any dietary restrictions or mobility concerns.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- OFFICIAL SIGN-OFF -->
+        <div class="doc-signoff">
+          <div class="signoff-agent">
+            <div class="agent-avatar-stamp" id="agent-initial">V</div>
+            <div>
+              <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--ink-soft);">Expedition Hosted & Certified By:</div>
+              <div style="font-family:'Fraunces', serif; font-size:17px; font-weight:700;" id="agent-name-display">Vani Singhania</div>
+              <div style="font-size:12.5px; color:var(--ink-soft);" id="agent-agency-display">vani_travels • Certified Host Operator</div>
+              <div style="font-size:12px; color:#1976D2; margin-top:2px;" id="agent-contact-display">✉️ 24ucs073@lnmiit.ac.in</div>
+            </div>
+          </div>
+          <div class="seal-box">
+            <div>TRAVELVERSE OFFICIAL DOSSIER</div>
+            <div class="official-seal-stamp">
+              <span>★</span> VERIFIED DEPARTURE SEAL
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </article>
+  </main>
+
+  <script>
+    const API_BASE = window.location.origin;
+
+    // Parse URL params: ?trip_id=110&booking_code=TV-TRIP-906949
+    const urlParams = new URLSearchParams(window.location.search);
+    const tripId = urlParams.get('trip_id') || '110';
+    const bookingCode = urlParams.get('booking_code');
+
+    async function loadItineraryDossier() {
+      try {
+        const downloadBtn = document.getElementById('btn-download-pdf');
+        if (downloadBtn) {
+          downloadBtn.href = `${API_BASE}/trip-itinerary.pdf?trip_id=${encodeURIComponent(tripId)}${bookingCode ? `&booking_code=${encodeURIComponent(bookingCode)}` : ''}`;
+        }
+
+        const res = await fetch(`${API_BASE}/group-trips/${tripId}`);
+        if (!res.ok) throw new Error("Could not fetch trip data");
+        const data = await res.json();
+        const trip = data.trip;
+        if (!trip) throw new Error("Trip not found");
+
+        renderTripDossier(trip);
+
+        if (bookingCode) {
+          loadBookingInfo(bookingCode, trip);
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('doc-title').textContent = "Expedition Dossier Not Found";
+        document.getElementById('doc-description').textContent = "We could not find the itinerary details for the specified trip ID. Please check the link or contact your host agent.";
+      }
+    }
+
+    async function loadBookingInfo(bCode, trip) {
+      try {
+        const res = await fetch(`${API_BASE}/trip-enrollments?trip_id=${trip.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          const enrs = data.enrollments || data.bookings || [];
+          const matched = enrs.find(e => String(e.booking_code) === String(bCode) || String(e.id) === String(bCode));
+          if (matched) {
+            const vBanner = document.getElementById('passenger-voucher-banner');
+            vBanner.style.display = 'flex';
+            document.getElementById('voucher-guest-name').textContent = matched.user_name || 'Confirmed Guest';
+            document.getElementById('voucher-details').textContent = `👥 ${matched.seats || 1} Confirmed Seat(s) • Booked: ${matched.created_at || 'Recent'}`;
+            document.getElementById('voucher-booking-ref').textContent = `🎟️ ${matched.booking_code || bCode}`;
+
+            const chatBtn = document.getElementById('btn-group-chat');
+            if (chatBtn) {
+              chatBtn.href = `agent.html#view-trips`;
+            }
+          }
+        }
+      } catch(e) {}
+    }
+
+    function renderTripDossier(t) {
+      document.title = `${t.title || 'Expedition Itinerary'} — TravelVerse Official Dossier`;
+      document.getElementById('doc-id').textContent = `TV-EXP-${t.id || '110'}`;
+
+      const agency = t.agency_name || 'Certified Travel Agency';
+      const host = t.agent_name || 'Verified Guide';
+      document.getElementById('doc-host-agency').textContent = `${agency} • ${host}`;
+      document.getElementById('agent-name-display').textContent = host;
+      document.getElementById('agent-agency-display').textContent = `${agency} • Certified Host Operator`;
+      if (t.agent_email) {
+        document.getElementById('agent-contact-display').textContent = `✉️ ${t.agent_email} ${t.agent_phone ? ' • 📞 ' + t.agent_phone : ''}`;
+      }
+      document.getElementById('agent-initial').textContent = (host.charAt(0) || 'T').toUpperCase();
+
+      document.getElementById('doc-title').textContent = t.title || 'Hosted Departure';
+      document.getElementById('doc-tagline').textContent = t.tagline || t.description || 'An extraordinary curated journey.';
+      document.getElementById('doc-dest').textContent = t.destination || 'Global';
+      document.getElementById('doc-category').textContent = t.category || 'Expedition';
+
+      const durDays = t.duration_days || 2;
+      const durNights = Math.max(1, durDays - 1);
+      document.getElementById('doc-duration-pill').textContent = `${durDays} Days`;
+      document.getElementById('spec-duration').textContent = `${durDays} Days / ${durNights} Nights`;
+
+      if (t.start_date) {
+        document.getElementById('doc-dates').textContent = `${t.start_date} ${t.end_date ? '➔ ' + t.end_date : ''}`;
+      }
+
+      document.getElementById('doc-price').textContent = `$${t.price || 200} ${t.currency || 'USD'} / Person`;
+
+      if (t.cover_image) {
+        document.getElementById('doc-hero').style.backgroundImage = `url('${t.cover_image}')`;
+      }
+
+      // Specs
+      document.getElementById('spec-difficulty').textContent = t.difficulty || 'Moderate';
+      document.getElementById('spec-capacity').textContent = `Max ${t.max_capacity || 15} Travellers (${t.min_age ? t.min_age : 'All Ages'})`;
+      document.getElementById('spec-season').textContent = t.season_climate || 'Optimal Regional Season';
+      document.getElementById('spec-stay').textContent = t.stay_type || 'Boutique Heritage Havelis & Resorts';
+      document.getElementById('spec-transit').textContent = t.transit_mode || 'Private AC Coach & Local Transit';
+
+      // Overview
+      document.getElementById('doc-description').textContent = t.description || 'Experience this exceptional departure hosted by certified specialists.';
+
+      // Day-by-day Itinerary
+      const itEl = document.getElementById('itinerary-timeline');
+      const itineraryList = (Array.isArray(t.itinerary) && t.itinerary.length > 0) ? t.itinerary : [];
+      document.getElementById('itinerary-days-badge').textContent = `${itineraryList.length || durDays} Days`;
+
+      if (itineraryList.length === 0) {
+        itEl.innerHTML = `
+          <div class="day-node">
+            <div class="day-marker">1</div>
+            <div class="day-card">
+              <div class="day-head">
+                <span class="day-tag">Day 1</span>
+                <h4 class="day-title">Arrival, Rendezvous & Orientation in ${t.destination}</h4>
+              </div>
+              <p class="day-narrative">Gather at the designated rendezvous point for an introduction with your host guide. Transfer to curated accommodation, settle in, and embark on an orientation walk through key landmarks.</p>
+              <div class="day-meta-footer">
+                <span class="day-meta-pill">🍽️ Welcome Dinner</span>
+                <span class="day-meta-pill">🏨 Handpicked Boutique Hotel</span>
+              </div>
+            </div>
+          </div>
+          <div class="day-node">
+            <div class="day-marker">2</div>
+            <div class="day-card">
+              <div class="day-head">
+                <span class="day-tag">Day 2</span>
+                <h4 class="day-title">Guided Heritage Highlights & Farewell Concluding Transfers</h4>
+              </div>
+              <p class="day-narrative">Explore the most scenic viewpoints and cultural centers of ${t.destination}. Enjoy an authentic local lunch before concluding transfers coordinate return journeys.</p>
+              <div class="day-meta-footer">
+                <span class="day-meta-pill">🍽️ Breakfast & Lunch</span>
+                <span class="day-meta-pill">🚗 Concluding Departure Transfers</span>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        itEl.innerHTML = itineraryList.map((d, idx) => `
+          <div class="day-node">
+            <div class="day-marker">${d.day || (idx + 1)}</div>
+            <div class="day-card">
+              <div class="day-head">
+                <span class="day-tag">Day ${d.day || (idx + 1)}</span>
+                <h4 class="day-title">${d.title || 'Exploration & Journey'}</h4>
+              </div>
+              <p class="day-narrative">${d.activities || ''}</p>
+              <div class="day-meta-footer">
+                ${d.meals ? `<span class="day-meta-pill">🍽️ ${d.meals}</span>` : ''}
+                ${d.stay ? `<span class="day-meta-pill">🏨 ${d.stay}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Inclusions & Exclusions
+      const incList = Array.isArray(t.inclusions) && t.inclusions.length > 0
+        ? t.inclusions
+        : ['All curated boutique accommodations', 'Daily breakfast and welcome dinner', 'All monument and entry permits', 'Private air-conditioned transit', 'Certified lead guide and 24/7 concierge'];
+      document.getElementById('inclusions-list').innerHTML = incList.map(i => `
+        <li><span style="color:var(--forest); font-weight:800;">✓</span> <span>${i}</span></li>
+      `).join('');
+
+      const excList = Array.isArray(t.exclusions) && t.exclusions.length > 0
+        ? t.exclusions
+        : ['Airfare or long-distance rail tickets to meeting point', 'Comprehensive personal travel and health insurance', 'Personal laundry, phone calls, and alcoholic drinks', 'Voluntary gratuities and tips'];
+      document.getElementById('exclusions-list').innerHTML = excList.map(e => `
+        <li><span style="color:var(--rust); font-weight:800;">✕</span> <span>${e}</span></li>
+      `).join('');
+
+      // Logistics
+      if (t.meeting_point) document.getElementById('doc-meeting-point').textContent = t.meeting_point;
+      if (t.dropoff_point) document.getElementById('doc-dropoff-point').textContent = t.dropoff_point;
+      if (t.health_advisory) document.getElementById('doc-health-advisory').textContent = t.health_advisory;
+
+      const packingList = Array.isArray(t.packing_essentials) && t.packing_essentials.length > 0
+        ? t.packing_essentials
+        : ['Comfortable walking shoes with good grip', 'Weather-appropriate clothing & evening fleece', 'UV sunglasses, sun hat & sunscreen', 'Personal reusable water flask', 'Valid Government Photo ID Card'];
+      document.getElementById('packing-tags').innerHTML = packingList.map(p => `
+        <span class="tag-pill">${p}</span>
+      `).join('');
+    }
+
+    loadItineraryDossier();
+  </script>
+</body>
+</html>
+

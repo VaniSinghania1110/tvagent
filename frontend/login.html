@@ -7,6 +7,103 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<style>
+  html, body {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+  }
+  .stage {
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+  }
+  .runway {
+    height: 100vh !important;
+    min-height: 100vh !important;
+    overflow: hidden !important;
+  }
+  .desk {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    padding: 20px 32px !important;
+  }
+  .desk::-webkit-scrollbar {
+    display: none !important;
+  }
+  .panel {
+    max-width: 390px !important;
+    margin: auto 0 !important;
+  }
+  .role-selector-wrap {
+    margin-bottom: 12px !important;
+  }
+  .tabs {
+    margin-bottom: 16px !important;
+  }
+  .field {
+    margin-bottom: 11px !important;
+  }
+  .submit {
+    margin-top: 12px !important;
+    padding: 12px !important;
+  }
+  #agent-register-modal.modal-overlay,
+  .modal-overlay {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(11,32,39,0.82) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    display: none;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 9999999 !important;
+    padding: 16px !important;
+    box-sizing: border-box !important;
+  }
+  #agent-register-modal.show,
+  .modal-overlay.show {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  .role-chip{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid transparent;
+    background:transparent;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family:inherit;
+    user-select:none;
+  }
+  .role-chip:hover{
+    background:rgba(255,255,255,0.7);
+    color:var(--ink);
+  }
+  .role-chip.active{
+    background:#FFFFFF !important;
+    color:var(--ink) !important;
+    border-color:rgba(23,36,42,0.12) !important;
+    box-shadow:0 4px 14px rgba(23,36,42,0.08) !important;
+  }
+  .role-chip.active div div:first-child{
+    color:var(--ink);
+  }
+</style>
 </head>
 <body>
 
@@ -199,6 +296,31 @@
   <!-- RIGHT PANEL -->
   <div class="desk">
     <div class="panel">
+
+      <!-- ROLE SELECTOR -->
+      <div class="role-selector-wrap" style="margin-bottom: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-soft);">Select Account Role</span>
+          <span id="role-badge" style="font-size: 11px; font-weight: 700; background: rgba(232,135,74,0.12); color: var(--accent-sunset); padding: 3px 10px; border-radius: 99px;">Traveller Portal</span>
+        </div>
+        <div class="role-switch" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(23,36,42,0.06); padding: 5px; border-radius: 14px; border: 1.5px solid var(--line);">
+          <button type="button" class="role-chip active" id="role-chip-traveller" onclick="setAccountRole('traveller')">
+            <span style="font-size: 18px;">🎒</span>
+            <div style="text-align: left;">
+              <div style="font-weight: 700; font-size: 13.5px; line-height: 1.2;">Traveller</div>
+              <div style="font-size: 10.5px; color: var(--ink-soft); font-weight: 500;">Join & explore trips</div>
+            </div>
+          </button>
+          <button type="button" class="role-chip" id="role-chip-agent" onclick="setAccountRole('agent')">
+            <span style="font-size: 18px;">🧭</span>
+            <div style="text-align: left;">
+              <div style="font-weight: 700; font-size: 13.5px; line-height: 1.2;">Travel Agent</div>
+              <div style="font-size: 10.5px; color: var(--ink-soft); font-weight: 500;">Host trips & guide clients</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <div class="tabs">
         <button class="tab active" data-tab="login">Log in</button>
         <button class="tab" data-tab="register">Sign up</button>
@@ -206,12 +328,12 @@
       </div>
 
       <div id="login-copy">
-        <h2 class="headline">Welcome back</h2>
-        <p class="sub">Log in to pick up your itinerary where you left off.</p>
+        <h2 class="headline" id="login-headline">Welcome back</h2>
+        <p class="sub" id="login-sub">Log in to pick up your itinerary where you left off.</p>
       </div>
       <div id="register-copy" style="display:none;">
-        <h2 class="headline">Create your account</h2>
-        <p class="sub">Join Travelverse and start planning your next trip.</p>
+        <h2 class="headline" id="register-headline">Create your account</h2>
+        <p class="sub" id="register-sub">Join Travelverse and start planning your next trip.</p>
         <div class="signup-progress">
             <span id="step-indicator">Step 1 of 3</span>
         </div>
@@ -219,8 +341,8 @@
 
       <form id="login-form" class="active">
         <div class="field">
-          <label for="login-email">Email</label>
-          <input type="email" id="login-email" name="email" class="watch-field" placeholder="you@example.com" autocomplete="email" required>
+          <label for="login-email">Email or Username</label>
+          <input type="text" id="login-email" name="email" class="watch-field" placeholder="you@example.com or username" autocomplete="username" required>
         </div>
         <div class="field">
           <label for="login-password">Password</label>
@@ -235,14 +357,14 @@
           </label>
           <a href="#" id="forgot-password-link">Forgot password?</a>
         </div>
-        <button class="submit" type="submit" >Continue to Travelverse →</button>
+        <button class="submit" type="submit" id="login-submit-btn">Continue to Travelverse →</button>
       </form>
 
       <form id="register-form">
         <!-- STEP 1: VERIFY EMAIL -->
         <div id="signup-step1">
           <div class="field">
-            <label for="reg-email">Email Address</label>
+            <label for="reg-email" id="reg-email-label">Email Address</label>
             <input type="email" id="reg-email" name="email" class="watch-field" placeholder="you@example.com" autocomplete="email" required>
           </div>
 
@@ -286,21 +408,38 @@
 
         <!-- STEP 3: PROFILE DETAILS & FINISH -->
         <div id="signup-step3" style="display:none;">
-          <div class="field">
-            <label for="first-name">Full name</label>
-            <input type="text" id="first-name" name="first_name" class="watch-field" placeholder="Alex" autocomplete="given-name" required>
+          
+          <!-- TRAVELLER SPECIFIC DETAILS -->
+          <div id="signup-traveller-fields">
+            <div class="field">
+              <label for="first-name">Full name</label>
+              <input type="text" id="first-name" name="first_name" class="watch-field" placeholder="Alex" autocomplete="given-name">
+            </div>
+            <div class="field">
+              <label for="last-name">Last name</label>
+              <input type="text" id="last-name" name="last_name" class="watch-field" placeholder="Rivera" autocomplete="family-name">
+            </div>
+            <div class="field">
+              <label for="username">Username handle</label>
+              <input type="text" id="username" name="username" class="watch-field" placeholder="AlexaRivera" autocomplete="username">
+            </div>
           </div>
-          <div class="field">
-            <label for="last-name">Last name</label>
-            <input type="text" id="last-name" name="last_name" class="watch-field" placeholder="Rivera" autocomplete="family-name" required>
+
+          <!-- AGENT PROMPT CARD (POPUP MODAL TO AVOID SCROLL) -->
+          <div id="signup-agent-card" style="display:none; text-align:center; padding:18px 16px; background:rgba(201,162,39,0.08); border:1.5px dashed var(--gold); border-radius:14px; margin-bottom:14px;">
+            <div style="font-size:32px; margin-bottom:6px;">🧭</div>
+            <div style="font-weight:700; font-size:15px; color:var(--ink);">Agent Registration Form</div>
+            <p style="font-size:12.5px; color:var(--ink-soft); margin:6px 0 14px 0; line-height:1.4;">
+              To ensure a clean, scroll-free interface, please complete your guide and agency details in the popup modal.
+            </p>
+            <button type="button" class="submit" id="open-agent-popup-btn" onclick="window.openAgentRegisterModal && window.openAgentRegisterModal()" style="margin:0; width:100%; background:linear-gradient(135deg, var(--gold), #D48806); color:#0B2027; font-weight:700; cursor:pointer;">
+              📋 Open Agent Registration Form →
+            </button>
           </div>
-          <div class="field">
-            <label for="username">Username handle</label>
-            <input type="text" id="username" name="username" class="watch-field" placeholder="AlexaRivera" autocomplete="username" required>
-          </div>
+
           <div style="display:flex; gap:10px; margin-top:15px;">
             <button type="button" id="signup-step3-back-btn" style="flex:1; background:rgba(23,36,42,0.08); border:none; color:#17242A; border-radius:10px; font-weight:600; cursor:pointer; padding:12px;">← Back</button>
-            <button type="submit" id="signup-complete-btn" class="submit" style="flex:2; margin-top:0;">Create Account →</button>
+            <button type="submit" id="signup-complete-btn" class="submit" style="flex:2; margin-top:0;">Complete Registration →</button>
           </div>
         </div> <!-- signup-step3 CLOSE -->
       </form>
@@ -331,6 +470,90 @@
 
 
 <script>
+  // ---------- Global Modal Handlers ----------
+  window.openAgentRegisterModal = function() {
+    const modal = document.getElementById('agent-register-modal');
+    if (modal) {
+      modal.classList.add('show');
+      modal.style.setProperty('display', 'flex', 'important');
+      modal.style.setProperty('opacity', '1', 'important');
+      modal.style.setProperty('visibility', 'visible', 'important');
+      modal.style.setProperty('pointer-events', 'auto', 'important');
+      modal.style.setProperty('z-index', '9999999', 'important');
+    }
+  };
+
+  window.closeAgentRegisterModal = function() {
+    const modal = document.getElementById('agent-register-modal');
+    if (modal) {
+      modal.classList.remove('show');
+      modal.style.setProperty('display', 'none', 'important');
+      modal.style.setProperty('opacity', '0', 'important');
+      modal.style.setProperty('visibility', 'hidden', 'important');
+      modal.style.setProperty('pointer-events', 'none', 'important');
+    }
+  };
+
+  window.submitAgentFromModal = function() {
+    const completeBtn = document.getElementById('signup-complete-btn');
+    if (completeBtn) {
+      completeBtn.click();
+    }
+  };
+
+  // ---------- Role Configuration ----------
+  window.CURRENT_ROLE = 'traveller';
+
+  function setAccountRole(role) {
+    window.CURRENT_ROLE = role;
+    const travBtn = document.getElementById('role-chip-traveller');
+    const agentBtn = document.getElementById('role-chip-agent');
+    const badge = document.getElementById('role-badge');
+    const loginH2 = document.getElementById('login-headline');
+    const loginSub = document.getElementById('login-sub');
+    const regH2 = document.getElementById('register-headline');
+    const regSub = document.getElementById('register-sub');
+    const travFields = document.getElementById('signup-traveller-fields');
+    const agentFields = document.getElementById('signup-agent-fields');
+    const emailLabel = document.getElementById('reg-email-label');
+
+    if (role === 'agent') {
+      if (travBtn) travBtn.classList.remove('active');
+      if (agentBtn) agentBtn.classList.add('active');
+      if (badge) {
+        badge.textContent = 'Agent Portal';
+        badge.style.background = 'rgba(201,162,39,0.18)';
+        badge.style.color = '#B38B1B';
+      }
+      if (loginH2) loginH2.textContent = 'Welcome back, Agent';
+      if (loginSub) loginSub.textContent = 'Log in to host trips, manage client bookings and inquiries.';
+      if (regH2) regH2.textContent = 'Register Agency / Guide';
+      if (regSub) regSub.textContent = 'Create your verified agency profile and publish group trips.';
+      if (travFields) travFields.style.display = 'none';
+      const agentCard = document.getElementById('signup-agent-card');
+      if (agentCard) agentCard.style.display = 'block';
+      if (agentFields) agentFields.style.display = 'none';
+      if (emailLabel) emailLabel.textContent = 'Official Agent Email Address';
+    } else {
+      if (travBtn) travBtn.classList.add('active');
+      if (agentBtn) agentBtn.classList.remove('active');
+      if (badge) {
+        badge.textContent = 'Traveller Portal';
+        badge.style.background = 'rgba(232,135,74,0.12)';
+        badge.style.color = 'var(--accent-sunset)';
+      }
+      if (loginH2) loginH2.textContent = 'Welcome back';
+      if (loginSub) loginSub.textContent = 'Log in to pick up your itinerary where you left off.';
+      if (regH2) regH2.textContent = 'Create your account';
+      if (regSub) regSub.textContent = 'Join Travelverse and start planning your next trip.';
+      if (travFields) travFields.style.display = 'block';
+      const agentCard = document.getElementById('signup-agent-card');
+      if (agentCard) agentCard.style.display = 'none';
+      if (agentFields) agentFields.style.display = 'none';
+      if (emailLabel) emailLabel.textContent = 'Email Address';
+    }
+  }
+
   // ---------- Tabs ----------
   const tabs = document.querySelectorAll('.tab');
   const loginForm = document.getElementById('login-form');
@@ -354,6 +577,8 @@
 
     loginCopy.style.display = (name === "login") ? "block" : "none";
     registerCopy.style.display = (name === "register") ? "block" : "none";
+    setAccountRole(window.CURRENT_ROLE);
+
 
     if(name === "login"){
 
@@ -550,6 +775,7 @@ showTab(initialTab);
         </button>
 
     </div>
+</div>
 
 
 
@@ -782,5 +1008,114 @@ showTab(initialTab);
   }
 </script>
 <script src="js/auth.js"></script>
+
+<!-- ========================================== -->
+<!-- AGENT REGISTRATION POPUP MODAL (NO SCROLL) -->
+<!-- ========================================== -->
+<div id="agent-register-modal" class="modal-overlay">
+  <div style="width:620px; max-width:96%; max-height:90vh; overflow-y:auto; padding:26px 24px; border-radius:18px; text-align:left; background:#FFFDF8; border:1.5px solid rgba(201,162,39,0.35); box-shadow:0 24px 60px rgba(0,0,0,0.35); position:relative;">
+    
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; border-bottom:1px solid rgba(23,36,42,0.1); padding-bottom:12px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:42px; height:42px; border-radius:12px; background:rgba(201,162,39,0.16); display:flex; align-items:center; justify-content:center; font-size:22px;">🧭</div>
+        <div>
+          <h3 style="margin:0; font-family:'Fraunces', serif; font-size:19px; color:var(--ink); font-weight:600;">Agency & Guide Registration</h3>
+          <div style="font-size:12.5px; color:var(--ink-soft); margin-top:2px;">Complete your verified tour operator profile to host group departures.</div>
+        </div>
+      </div>
+      <button type="button" onclick="window.closeAgentRegisterModal && window.closeAgentRegisterModal()" style="background:none; border:none; font-size:20px; cursor:pointer; color:var(--ink-soft); line-height:1; padding:4px;">✕</button>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="field" style="margin-bottom:10px;">
+        <label for="agent-lead-name">Agent / Lead Guide Name *</label>
+        <input type="text" id="agent-lead-name" class="watch-field" placeholder="e.g. Aarav Sharma" required>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label for="agent-agency-name">Agency / Company Name *</label>
+        <input type="text" id="agent-agency-name" class="watch-field" placeholder="e.g. Himalayan High Passes" required>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label for="agent-username">Agent Username Handle *</label>
+        <input type="text" id="agent-username" class="watch-field" placeholder="e.g. aarav_himalayas" required>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label for="agent-type-select">Entity Type</label>
+        <select id="agent-type-select" style="width:100%; padding:10px 12px; border-radius:10px; border:1.5px solid rgba(23,36,42,0.15); background:#fff; font-family:inherit; font-size:13.5px;">
+          <option value="group">🏢 Registered Travel Agency / Tour Operator</option>
+          <option value="person">👤 Individual Tour Guide / Freelance Host</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label for="agent-phone">Contact Phone / WhatsApp *</label>
+        <input type="text" id="agent-phone" class="watch-field" placeholder="e.g. +91 98765 43210">
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label for="agent-specialty">Guiding Specialty / Focus</label>
+        <input type="text" id="agent-specialty" class="watch-field" placeholder="e.g. High-Altitude 4x4, Treks">
+      </div>
+      <div class="field" style="margin-bottom:10px; grid-column:span 2;">
+        <label for="agent-destinations">Primary Destinations Covered</label>
+        <input type="text" id="agent-destinations" class="watch-field" placeholder="e.g. Spiti Valley, Ladakh, Bali, Iceland">
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label for="agent-experience">Experience (Years)</label>
+        <input type="number" id="agent-experience" min="1" max="50" value="5" style="width:100%; padding:10px; border-radius:10px; border:1.5px solid rgba(23,36,42,0.15); font-family:inherit;">
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label for="agent-languages">Languages Spoken</label>
+        <input type="text" id="agent-languages" class="watch-field" placeholder="English, Hindi, etc.">
+      </div>
+      <div class="field" style="margin-bottom:12px; grid-column:span 2;">
+        <label for="agent-bio">Agency / Guide Bio</label>
+        <textarea id="agent-bio" rows="2" style="width:100%; padding:10px; border-radius:10px; border:1.5px solid rgba(23,36,42,0.15); font-family:inherit; font-size:13px; resize:vertical;" placeholder="Tell travellers about your expertise and expeditions..."></textarea>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:14px; border-top:1px solid rgba(23,36,42,0.1); padding-top:14px;">
+      <button type="button" onclick="window.closeAgentRegisterModal && window.closeAgentRegisterModal()" style="padding:10px 18px; border-radius:10px; border:1.5px solid rgba(23,36,42,0.18); background:transparent; font-weight:600; cursor:pointer;">Cancel</button>
+      <button type="button" id="agent-popup-submit-btn" onclick="window.submitAgentFromModal && window.submitAgentFromModal()" style="padding:10px 22px; border-radius:10px; border:none; background:linear-gradient(135deg, var(--gold), #D48806); color:#0B2027; font-weight:700; cursor:pointer; font-size:14px; display:inline-flex; align-items:center; gap:8px;">
+        ✓ Complete Agent Registration →
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function openAgentRegisterModal() {
+    const modal = document.getElementById('agent-register-modal');
+    if (modal) {
+      modal.classList.add('show');
+      modal.style.setProperty('display', 'flex', 'important');
+      modal.style.setProperty('opacity', '1', 'important');
+      modal.style.setProperty('visibility', 'visible', 'important');
+      modal.style.setProperty('pointer-events', 'auto', 'important');
+      modal.style.setProperty('z-index', '9999999', 'important');
+    }
+  }
+  window.openAgentRegisterModal = openAgentRegisterModal;
+
+  function closeAgentRegisterModal() {
+    const modal = document.getElementById('agent-register-modal');
+    if (modal) {
+      modal.classList.remove('show');
+      modal.style.setProperty('display', 'none', 'important');
+      modal.style.setProperty('opacity', '0', 'important');
+      modal.style.setProperty('visibility', 'hidden', 'important');
+      modal.style.setProperty('pointer-events', 'none', 'important');
+    }
+  }
+  window.closeAgentRegisterModal = closeAgentRegisterModal;
+
+  function submitAgentFromModal() {
+    const completeBtn = document.getElementById('signup-complete-btn');
+    if (completeBtn) {
+      completeBtn.click();
+    }
+  }
+  window.submitAgentFromModal = submitAgentFromModal;
+</script>
+
 </body>
 </html>

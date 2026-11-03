@@ -1,0 +1,703 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TravelVerse — Find your travel people</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep: #070D1C;
+    --bg-panel: #17294A;
+    --bg-panel-2: #223F6B;
+    --coral: #FF7A52;
+    --gold: #FFC978;
+    --teal: #6FC3D8;
+    --cream: #FBF3E7;
+    --muted: #93A8C2;
+    --line: rgba(251,243,231,0.14);
+    --display: 'Fraunces', serif;
+    --body: 'Plus Jakarta Sans', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+
+  body{
+    background: var(--bg-deep);
+    color: var(--cream);
+    font-family: var(--body);
+    min-width: 1024px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .wrap{
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(7,13,28,0.72);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    height: 76px;
+  }
+  .logo{
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: 0.3px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo-mark{
+    width: 28px; height: 28px;
+    position: relative;
+  }
+  .logo-mark svg { width:100%; height:100%; }
+  .nav-links{
+    display:flex; align-items:center; gap: 40px;
+    font-size: 14.5px; font-weight: 500;
+    color: var(--muted);
+  }
+  .nav-links a { position:relative; transition: color .25s ease; }
+  .nav-links a:hover, .nav-links a:focus-visible { color: var(--cream); outline:none; }
+  .nav-links a::after{
+    content:''; position:absolute; left:0; right:0; bottom:-6px; height:1px;
+    background: var(--coral); transform: scaleX(0); transform-origin: left;
+    transition: transform .3s ease;
+  }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-cta{
+    display:flex; align-items:center; gap: 18px;
+  }
+  .btn{
+    font-family: var(--body); font-weight:600; font-size: 14.5px;
+    padding: 11px 22px; border-radius: 999px; border: 1px solid transparent;
+    cursor: pointer; transition: all .25s ease;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{
+    background: var(--coral); color: #070D1C;
+  }
+  .btn-primary:hover{ background: #ff8266; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255,122,82,0.28); }
+  .btn-ghost{
+    color: var(--cream); border-color: var(--line);
+  }
+  .btn-ghost:hover{ border-color: var(--cream); }
+  .btn:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  /* ---------- HERO ---------- */
+  .page-video{
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+  }
+  .bg-video{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .bg-video-overlay{
+    position: absolute;
+    inset: 0;
+    background: rgba(7,13,28,0.62);
+  }
+  .hero{
+    position: relative;
+    padding: 190px 0 140px;
+    overflow: hidden;
+  }
+  .hero-glow{
+    position:absolute;
+    width: 900px; height:900px;
+    top: -400px; left: 50%; transform: translateX(-50%);
+    background: radial-gradient(circle, rgba(255,122,82,0.15) 0%, rgba(7,13,28,0) 65%);
+    z-index:0;
+    pointer-events:none;
+  }
+  .hero-content{
+    position: relative; z-index: 2;
+    text-align:center;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+    display:inline-flex; align-items:center; gap:10px;
+    background: rgba(111,195,216,0.1);
+    border: 1px solid rgba(111,195,216,0.3);
+    padding: 7px 16px;
+    border-radius: 999px;
+    margin-bottom: 28px;
+    opacity:0; animation: rise .7s ease forwards .1s;
+  }
+  .pulse-dot{
+    width:6px; height:6px; border-radius:50%; background: var(--teal);
+    box-shadow: 0 0 0 0 rgba(111,195,216,0.6);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow: 0 0 0 0 rgba(111,195,216,0.5); }
+    70%{ box-shadow: 0 0 0 8px rgba(111,195,216,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(111,195,216,0); }
+  }
+  h1{
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 72px;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    opacity:0; animation: rise .8s ease forwards .25s;
+  }
+  h1 em{
+    font-style: italic;
+    font-weight: 500;
+    position: relative;
+    background: linear-gradient(100deg, var(--coral), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+  }
+  h1 em .squiggle{
+    position: absolute;
+    left: 2%;
+    bottom: -14px;
+    width: 96%;
+    height: 14px;
+    opacity: 0;
+    animation: squiggle-in .9s ease forwards 1.1s;
+  }
+  h1 em .squiggle path{
+    stroke-dasharray: 340;
+    stroke-dashoffset: 340;
+    animation: draw-squiggle 1s ease forwards 1.1s;
+  }
+  @keyframes squiggle-in{ to{ opacity: 1; } }
+  @keyframes draw-squiggle{ to{ stroke-dashoffset: 0; } }
+  .hero-sub{
+    margin: 26px auto 0;
+    max-width: 560px;
+    font-size: 17.5px;
+    line-height: 1.65;
+    color: var(--muted);
+    opacity:0; animation: rise .8s ease forwards .4s;
+  }
+  .hero-actions{
+    margin-top: 40px;
+    display:flex; align-items:center; justify-content:center; gap:16px;
+    opacity:0; animation: rise .8s ease forwards .55s;
+  }
+  .btn-lg{ padding: 14px 28px; font-size: 15.5px; }
+
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(16px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  /* live stat strip */
+  .stat-strip{
+    margin-top: 76px;
+    display:flex; justify-content:center; gap: 64px;
+    opacity:0; animation: rise .8s ease forwards .7s;
+  }
+  .stat{ text-align:center; }
+  .stat-num{
+    font-family: var(--mono); font-size: 26px; font-weight: 500; color: var(--cream);
+  }
+  .stat-label{
+    font-size: 12.5px; color: var(--muted); margin-top: 4px; letter-spacing: 0.3px;
+  }
+
+  /* ---------- SECTION SHELL ---------- */
+  section.block{ padding: 120px 0; position: relative; }
+  .section-head{ max-width: 620px; margin-bottom: 68px; }
+  .section-tag{
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--coral); margin-bottom: 16px; display:block;
+  }
+  .section-head h2{
+    font-family: var(--display); font-weight: 500; font-size: 38px; line-height: 1.2; letter-spacing: -0.4px;
+  }
+  .section-head p{
+    margin-top: 16px; color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 520px;
+  }
+
+  .reveal{ opacity:0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform: translateY(0); }
+
+  /* ---------- FEATURES ---------- */
+  .feature-grid{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap: 22px;
+  }
+  .feature-card{
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 28px 22px 24px;
+    transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s ease, background .35s ease, box-shadow .35s ease;
+    position:relative;
+  }
+  .feature-card:hover{
+    transform: translateY(-6px);
+    border-color: rgba(255,122,82,0.35);
+    background: var(--bg-panel-2);
+    box-shadow: 0 24px 44px rgba(0,0,0,0.32);
+  }
+  .feature-icon{
+    width: 44px; height:44px; border-radius: 10px;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(255,122,82,0.12);
+  }
+  .feature-icon svg{ width:21px; height:21px; }
+  .feature-card h3{
+    font-family: var(--display); font-weight: 500; font-size: 19px; margin-bottom: 10px;
+  }
+  .feature-card p{ font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .steps{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    position: relative;
+    padding-top: 10px;
+  }
+  .steps::before{
+    content:''; position:absolute; top: 37px; left: 60px; right: 60px; height: 1px;
+    background: repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 16px);
+  }
+  .step{ padding: 0 20px 0 0; position:relative; }
+  .step-num{
+    font-family: var(--mono); font-size: 14px; color: var(--bg-deep); font-weight:600;
+    width: 54px; height:54px; border-radius: 50%;
+    background: var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: 24px;
+    position: relative; z-index:1;
+    border: 3px dashed var(--bg-deep);
+    box-shadow: 0 0 0 1px rgba(255,201,120,0.4);
+  }
+  .step:nth-of-type(odd) .step-num{ transform: rotate(-4deg); }
+  .step:nth-of-type(even) .step-num{ transform: rotate(4deg); }
+  .step h4{ font-family: var(--display); font-size: 18px; font-weight:500; margin-bottom:8px; }
+  .step p{ font-size: 14px; color: var(--muted); line-height:1.6; }
+
+  /* ---------- TRUST / RATING SHOWCASE ---------- */
+  .trust-layout{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items:center;
+  }
+  .trust-copy p { color: var(--muted); font-size: 15.5px; line-height: 1.7; margin-bottom: 28px; }
+  .trust-points{ display:flex; flex-direction:column; gap: 18px; }
+  .trust-point{ display:flex; gap: 14px; align-items:flex-start; }
+  .trust-point svg{ flex-shrink:0; margin-top: 3px; width:18px; height:18px; color: var(--teal); }
+  .trust-point span{ font-size: 14.5px; color: var(--cream); }
+
+  .profile-card{
+    background: linear-gradient(160deg, var(--bg-panel-2), var(--bg-panel));
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 30px;
+    position: relative;
+    transform: perspective(800px) rotateY(-6deg) rotateX(2deg);
+    transition: transform .5s ease;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+  }
+  .profile-card:hover{ transform: perspective(800px) rotateY(0deg) rotateX(0deg); }
+  .profile-top{ display:flex; gap:16px; align-items:center; }
+  .avatar{
+    width: 58px; height:58px; border-radius: 50%;
+    background: conic-gradient(from 200deg, var(--coral), var(--gold), var(--teal), var(--coral));
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--display); font-weight:600; font-size:20px; color: var(--bg-deep);
+  }
+  .avatar-inner{
+    width: 52px; height:52px; border-radius:50%; background: var(--bg-panel);
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--display); font-weight:600; font-size:18px;
+  }
+  .profile-name{ font-family: var(--display); font-size:18px; font-weight:500; }
+  .profile-meta{ font-size: 13px; color: var(--muted); margin-top:2px; }
+  .stars{ display:flex; gap:3px; margin-top: 20px; }
+  .stars svg{ width:16px; height:16px; }
+  .star-fill{ color: var(--gold); }
+  .star-empty{ color: rgba(251,243,231,0.15); }
+  .rating-score{ font-family: var(--mono); font-size: 13px; color: var(--muted); margin-top:8px; }
+  .tag-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:22px; }
+  .tag{
+    font-size: 12px; padding: 6px 12px; border-radius: 999px;
+    background: rgba(111,195,216,0.12); color: var(--teal); border:1px solid rgba(111,195,216,0.25);
+  }
+  .review-line{
+    margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--line);
+    font-size: 14px; color: var(--muted); font-style: italic; line-height:1.6;
+  }
+
+  /* ---------- AGENTS ---------- */
+  .agent-layout{ display:grid; grid-template-columns: 1.1fr 1fr; gap: 60px; align-items:center; }
+  .agent-card-stack{ position:relative; height: 340px; }
+  .agent-card{
+    position:absolute; width: 82%;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 24px;
+    transition: transform .4s ease;
+  }
+  .agent-card:nth-child(1){ top:0; left:0; z-index:3; }
+  .agent-card:nth-child(2){ top: 46px; left: 60px; z-index:2; opacity:0.8; }
+  .agent-card:nth-child(3){ top: 92px; left: 120px; z-index:1; opacity:0.55; }
+  .agent-card-stack:hover .agent-card:nth-child(1){ transform: translateY(-6px); }
+  .agent-head{ display:flex; justify-content:space-between; align-items:flex-start; }
+  .agent-name{ font-family: var(--display); font-size:17px; font-weight:500; }
+  .agent-match{
+    font-family: var(--mono); font-size:12px; color: var(--bg-deep);
+    background: var(--gold); padding: 4px 10px; border-radius: 999px; font-weight:600;
+  }
+  .agent-desc{ font-size: 13.5px; color: var(--muted); margin-top: 10px; line-height:1.6; }
+  .agent-meta{ display:flex; gap: 16px; margin-top:16px; font-size:12.5px; color: var(--muted); font-family: var(--mono); }
+
+  /* ---------- CHATBOT ---------- */
+  .chat-layout{ display:grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items:center; }
+  .chat-window{
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 26px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+  }
+  .chat-head{ display:flex; align-items:center; gap:10px; padding-bottom:18px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  .chat-dot{ width:8px; height:8px; border-radius:50%; background: var(--teal); }
+  .chat-title{ font-size: 13.5px; font-weight:600; }
+  .bubble{
+    max-width: 78%;
+    padding: 13px 18px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: bubble-in .5s ease forwards;
+  }
+  .bubble.user{
+    background: var(--bg-panel-2);
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+    animation-delay: .2s;
+  }
+  .bubble.bot{
+    background: linear-gradient(120deg, rgba(255,122,82,0.16), rgba(255,201,120,0.1));
+    border: 1px solid rgba(255,122,82,0.2);
+    border-bottom-left-radius: 4px;
+    animation-delay: .7s;
+  }
+  @keyframes bubble-in{
+    from{ opacity:0; transform: translateY(10px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  .typing{ display:inline-flex; gap:4px; padding: 4px 0; }
+  .typing span{
+    width:6px; height:6px; border-radius:50%; background: var(--coral);
+    animation: bounce 1.2s infinite ease-in-out;
+  }
+  .typing span:nth-child(2){ animation-delay: .15s; }
+  .typing span:nth-child(3){ animation-delay: .3s; }
+  @keyframes bounce{ 0%,60%,100%{ transform: translateY(0); opacity:.5; } 30%{ transform: translateY(-5px); opacity:1; } }
+
+  /* ---------- FINAL CTA ---------- */
+  .final-cta{
+    text-align:center;
+    padding: 130px 0 150px;
+    position: relative;
+  }
+  .final-cta h2{
+    font-family: var(--display); font-weight:500; font-size: 46px; letter-spacing:-0.6px; line-height:1.15;
+  }
+  .final-cta p{ color: var(--muted); margin: 20px auto 36px; max-width: 480px; font-size:16px; }
+
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 40px 0;
+    display:flex; justify-content:space-between; align-items:center;
+    font-size: 13px; color: var(--muted);
+  }
+  .footer-links{ display:flex; gap: 28px; }
+</style>
+</head>
+<body>
+
+<div class="page-video">
+  <video class="bg-video" autoplay muted loop playsinline poster="">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260702_081127_0992a171-d3c6-4978-8213-0ec5df8b6d63.mp4" type="video/mp4">
+  </video>
+  <div class="bg-video-overlay"></div>
+</div>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="logo">
+      <span class="logo-mark">
+        <svg viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="12" stroke="#FF7A52" stroke-width="1.4"/>
+          <circle cx="14" cy="14" r="2" fill="#FFC978"/>
+          <circle cx="21" cy="9" r="1.6" fill="#6FC3D8"/>
+          <circle cx="7" cy="19" r="1.6" fill="#FF7A52"/>
+          <path d="M14 14 L21 9 M14 14 L7 19" stroke="#9CA3C4" stroke-width="0.8" stroke-dasharray="1.5 1.5"/>
+        </svg>
+      </span>
+      TravelVerse
+    </div>
+    <div class="nav-links">
+      <a href="#features">How it works</a>
+      <a href="#trust">Trust & ratings</a>
+      <a href="#agents">For agents</a>
+      <a href="#chatbot">Assistant</a>
+    </div>
+    <div class="nav-cta">
+      <a href="login.html?tab=login" class="btn btn-ghost">Log in</a>
+      <a href="login.html?tab=register" class="btn btn-primary">Get started</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap hero-content">
+    <span class="eyebrow"><span class="pulse-dot"></span>Now matching across 40+ countries</span>
+    <h1>Find your <em>travel people<svg class="squiggle" viewBox="0 0 300 14" fill="none" preserveAspectRatio="none"><path d="M2 8c30-10 60-10 90 0s60 10 90 0 60-10 90 0 20 5 24 3" stroke="url(#sqgrad)" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="sqgrad" x1="0" y1="0" x2="300" y2="0"><stop stop-color="#FF7A52"/><stop offset="1" stop-color="#FFC978"/></linearGradient></defs></svg></em><br>before you find your gate.</h1>
+    <p class="hero-sub">TravelVerse connects you with travellers who share your pace, interests and destinations — so you're never scrambling for company, and never travelling with the wrong crowd.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn btn-primary btn-lg">Find travel companions</a>
+      <a href="#agents" class="btn btn-ghost btn-lg">Become a partner agent</a>
+    </div>
+    <div class="stat-strip">
+      <div class="stat"><div class="stat-num" id="stat1">0</div><div class="stat-label">Travellers matched</div></div>
+      <div class="stat"><div class="stat-num" id="stat2">0</div><div class="stat-label">Verified ratings</div></div>
+      <div class="stat"><div class="stat-num" id="stat3">0</div><div class="stat-label">Partner agents</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="features">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-tag">What TravelVerse does</span>
+      <h2>Everything you need to travel with the right people.</h2>
+      <p>One platform to find companions, vet who you travel with, and get matched to agents who actually fit your trip.</p>
+    </div>
+    <div class="feature-grid">
+
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FF7A52" stroke-width="1.6"><circle cx="8" cy="9" r="3"/><circle cx="17" cy="9" r="3"/><path d="M2 20c0-3 2.5-5 6-5s6 2 6 5"/><path d="M13 15c3-1 8 0 8 5"/></svg>
+        </div>
+        <h3 style="margin-top:18px;">Interest-based matching</h3>
+        <p>Tell us how you like to travel — slow and cultural, fast and adventurous, budget or luxury — and we surface people who match your style, not just your dates.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6FC3D8" stroke-width="1.6"><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 12h18"/><path d="M9.5 12.5l1.8 1.8L14.5 11" stroke-width="1.8"/></svg>
+        </div>
+        <h3 style="margin-top:18px;">Then, matched with the right agent</h3>
+        <p>Once your travel group takes shape, we suggest agents whose specialty actually fits where you're going and what you need.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFC978" stroke-width="1.6"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.3l6.1-.7z"/></svg>
+        </div>
+        <h3 style="margin-top:18px;">Ratings you can trust</h3>
+        <p>Every trip ends with a two-way rating. Before you commit to travelling with someone, see how past companions actually rated them.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FF7A52" stroke-width="1.6"><path d="M4 4h16v11H7l-3 3z"/><circle cx="9" cy="9.5" r="0.6" fill="#FF7A52"/><circle cx="12" cy="9.5" r="0.6" fill="#FF7A52"/><circle cx="15" cy="9.5" r="0.6" fill="#FF7A52"/></svg>
+        </div>
+        <h3 style="margin-top:18px;">Your travel assistant</h3>
+        <p>Ask the TravelVerse chatbot for live info on your destination, visa questions, or help figuring out logistics — anytime, mid-planning or mid-trip.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-tag">The flow</span>
+      <h2>From solo plan to a trip with people you trust.</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">01</div><h4>Build your profile</h4><p>Interests, pace, destinations, budget — the things that actually decide if a trip works.</p></div>
+      <div class="step reveal"><div class="step-num">02</div><h4>Get matched with travellers</h4><p>We surface travellers heading your way with a similar style, pace and rating history.</p></div>
+      <div class="step reveal"><div class="step-num">03</div><h4>Get matched with an agent</h4><p>Once your group takes shape, we suggest travel agents whose specialty fits your destination and budget.</p></div>
+      <div class="step reveal"><div class="step-num">04</div><h4>Travel, then rate</h4><p>After the trip, rate each other. It builds the trust layer for everyone who comes after.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="trust">
+  <div class="wrap trust-layout">
+    <div class="trust-copy reveal">
+      <span class="section-tag">Trust & ratings</span>
+      <h2 style="font-family:var(--display); font-weight:500; font-size:34px; margin-bottom:20px; letter-spacing:-0.3px;">Know who you're travelling with, before you go.</h2>
+      <p>Travelling with a stranger shouldn't be a gamble. Every TravelVerse member carries a rating history built by the people who've actually shared a trip with them — so you can check reliability, compatibility and vibe before you commit.</p>
+      <div class="trust-points">
+        <div class="trust-point"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4 10-10"/></svg><span>Two-way ratings after every completed trip</span></div>
+        <div class="trust-point"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4 10-10"/></svg><span>Public review history visible to future travel matches</span></div>
+        <div class="trust-point"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4 10-10"/></svg><span>Tags for travel style, so you know what you're rated on</span></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="profile-card">
+        <div class="profile-top">
+          <div class="avatar"><div class="avatar-inner">AK</div></div>
+          <div>
+            <div class="profile-name">Aanya K.</div>
+            <div class="profile-meta">14 trips · Joined 2024</div>
+          </div>
+        </div>
+        <div class="stars">
+          <svg class="star-fill" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7 7 .6-5.4 4.6 1.7 7-6.3-4-6.3 4 1.7-7L2 9.6 9 9z"/></svg>
+          <svg class="star-fill" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7 7 .6-5.4 4.6 1.7 7-6.3-4-6.3 4 1.7-7L2 9.6 9 9z"/></svg>
+          <svg class="star-fill" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7 7 .6-5.4 4.6 1.7 7-6.3-4-6.3 4 1.7-7L2 9.6 9 9z"/></svg>
+          <svg class="star-fill" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7 7 .6-5.4 4.6 1.7 7-6.3-4-6.3 4 1.7-7L2 9.6 9 9z"/></svg>
+          <svg class="star-empty" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7 7 .6-5.4 4.6 1.7 7-6.3-4-6.3 4 1.7-7L2 9.6 9 9z"/></svg>
+        </div>
+        <div class="rating-score">4.3 average · rated by 11 travel companions</div>
+        <div class="tag-row">
+          <span class="tag">Slow travel</span>
+          <span class="tag">Budget-friendly</span>
+          <span class="tag">Early riser</span>
+          <span class="tag">Trekking</span>
+        </div>
+        <div class="review-line">"Split every cost fairly and always stuck to the plan we agreed on." — companion, Himachal trip</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="agents">
+  <div class="wrap agent-layout">
+    <div class="agent-card-stack reveal">
+      <div class="agent-card">
+        <div class="agent-head"><span class="agent-name">Wanderlust Trails Co.</span><span class="agent-match">96% match</span></div>
+        <p class="agent-desc">Specializes in offbeat Himalayan treks and small-group budget itineraries.</p>
+        <div class="agent-meta"><span>★ 4.8</span><span>212 trips planned</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-head"><span class="agent-name">Coastal Escapes</span><span class="agent-match">88% match</span></div>
+        <p class="agent-desc">Beach-first, laid-back itineraries with flexible day plans.</p>
+        <div class="agent-meta"><span>★ 4.6</span><span>140 trips planned</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-head"><span class="agent-name">Heritage Route</span><span class="agent-match">81% match</span></div>
+        <p class="agent-desc">Culture and heritage focused city circuits.</p>
+        <div class="agent-meta"><span>★ 4.5</span><span>98 trips planned</span></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <span class="section-tag">For travel agents</span>
+      <h2 style="font-family:var(--display); font-weight:500; font-size:34px; margin-bottom:20px; letter-spacing:-0.3px;">List your agency where the right travellers actually find you.</h2>
+      <p style="color:var(--muted); font-size:15.5px; line-height:1.7; margin-bottom:24px;">Join TravelVerse as a partner agent and get listed to travellers planning trips that match your specialty. No more generic leads — we surface you to the people your itineraries are actually built for.</p>
+      <a href="#" class="btn btn-primary">List your agency</a>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="chatbot">
+  <div class="wrap chat-layout">
+    <div class="reveal">
+      <span class="section-tag">Your travel assistant</span>
+      <h2 style="font-family:var(--display); font-weight:500; font-size:34px; margin-bottom:20px; letter-spacing:-0.3px;">Ask anything, anytime, about your trip.</h2>
+      <p style="color:var(--muted); font-size:15.5px; line-height:1.7;">From "what's the weather in Manali this week" to "do I need a visa for Vietnam" — the TravelVerse assistant gives you current, place-specific answers so you're never stuck mid-plan or mid-trip.</p>
+    </div>
+    <div class="reveal">
+      <div class="chat-window">
+        <div class="chat-head"><span class="chat-dot"></span><span class="chat-title">TravelVerse Assistant</span></div>
+        <div class="bubble user">Is it a good time to visit Rishikesh in December?</div>
+        <div class="bubble bot">December is cool and clear — great for river-side stays, though rafting slows down. Pack layers for the evenings. Want a suggested 3-day plan?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <h2 class="reveal">Your next trip has better company waiting.</h2>
+    <p class="reveal">Build your profile, get matched, and stop planning trips alone.</p>
+    <a href="login.html?tab=register" class="btn btn-primary btn-lg reveal">Join TravelVerse</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+    <span>© 2026 TravelVerse</span>
+    <div class="footer-links">
+      <a href="#features">How it works</a>
+      <a href="#trust">Trust & ratings</a>
+      <a href="#agents">For agents</a>
+      <a href="#chatbot">Assistant</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---------- Scroll reveal ----------
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el=> io.observe(el));
+
+  // ---------- Stat counters ----------
+  function countUp(el, target, suffix=''){
+    let cur = 0;
+    const step = Math.max(1, Math.floor(target/60));
+    const t = setInterval(()=>{
+      cur += step;
+      if(cur >= target){ cur = target; clearInterval(t); }
+      el.textContent = cur.toLocaleString() + suffix;
+    }, 20);
+  }
+  window.addEventListener('load', ()=>{
+    setTimeout(()=>{
+      countUp(document.getElementById('stat1'), 12400);
+      countUp(document.getElementById('stat2'), 8900);
+      countUp(document.getElementById('stat3'), 310);
+    }, 900);
+  });
+</script>
+
+</body>
+</html>

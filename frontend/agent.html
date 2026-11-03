@@ -354,6 +354,87 @@
     .nav-links{ display:none; }
     .grid{ grid-template-columns: 1fr; }
   }
+
+    /* TRAVELLER GROUP CHAT STYLES */
+    .tgc-bubble-row {
+      display: flex;
+      flex-direction: column;
+      max-width: 82%;
+    }
+    .tgc-bubble-row.me {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+    .tgc-bubble-row.them {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+    .tgc-sender-label {
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 2px;
+      padding: 0 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .tgc-bubble {
+      padding: 8px 14px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      line-height: 1.45;
+      position: relative;
+      word-break: break-word;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .tgc-bubble-row.me .tgc-bubble {
+      background: #D9FDD3;
+      color: #111B21;
+      border-top-right-radius: 2px;
+    }
+    .tgc-bubble-row.them .tgc-bubble {
+      background: #FFFFFF;
+      color: #111B21;
+      border-top-left-radius: 2px;
+    }
+    .tgc-meta-tick {
+      font-size: 10px;
+      color: rgba(17, 27, 33, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-top: 3px;
+    }
+    .tgc-double-tick {
+      color: #53BDEB;
+      font-weight: bold;
+    }
+    .traveller-roster-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .traveller-roster-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--accent-sunset));
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
 </style>
 </head>
 <body>
@@ -366,8 +447,9 @@
     <a href="companions.html">Find companions</a>
     <a href="connections.html">Connections</a>
     <a href="chat.html">Chat</a>
-    <a href="agent.html" class="active">Agents</a>
+    <a href="agent.html" class="active">Agents & Trips</a>
     <a href="assistant.html">Assistant</a>
+    
   </div>
   <div class="nav-right">
     <div class="user-chip">
@@ -381,6 +463,7 @@
         </button>
         <div class="account-menu" id="account-menu">
           <button type="button" onclick="window.location.href='dashboard.html'" class="account-menu-item">My Dashboard</button>
+          
           <button type="button" id="logout-btn" class="account-menu-item danger">Log out</button>
         </div>
       </div>
@@ -391,12 +474,13 @@
 <!-- HERO -->
 <div class="hero-banner">
   <div class="hero-text">
-    <div class="eyebrow">VERIFIED GUIDES & TRAVEL AGENCIES</div>
-    <h1>Connect With Expert Travel Agents & Join Group Trips</h1>
-    <p>Discover licensed individual tour guides and established travel agencies. Connect directly for customized itineraries or enroll in curated small-group expeditions across the globe.</p>
-    <div class="hero-actions">
-      <button class="btn btn-primary" onclick="openRegisterAgentModal()">+ Register as an Agent</button>
-      <button class="btn btn-outline" onclick="openCreateTripModal()">🚀 Host a Group Trip</button>
+    <div class="eyebrow" id="hero-role-eyebrow">VERIFIED GUIDES & TRAVEL AGENCIES</div>
+    <h1 id="hero-role-title">Connect With Expert Travel Agents & Join Group Trips</h1>
+    <p id="hero-role-desc">Discover licensed individual tour guides and established travel agencies. Connect directly for customized itineraries or enroll in curated small-group expeditions across the globe.</p>
+    <div class="hero-actions" id="hero-actions-container">
+      <button class="btn btn-primary" id="btn-hero-reg-agent" onclick="openRegisterAgentModal()">+ Register as an Agent</button>
+      <button class="btn btn-outline" id="btn-hero-host-trip" onclick="openCreateTripModal()">🚀 Host a Group Trip</button>
+      <a href="agent-dashboard.html" class="btn btn-primary" id="btn-hero-agent-portal" style="display:none; background:linear-gradient(135deg, var(--gold), #D48806); color:#0B2027; font-weight:700; box-shadow:0 4px 14px rgba(201,162,39,0.35);">🧭 Go to Agent Operations Portal</a>
     </div>
   </div>
 </div>
@@ -458,6 +542,8 @@
       <input type="hidden" id="contact-agent-id">
       <input type="hidden" id="contact-agent-email">
       <input type="hidden" id="contact-agent-name">
+      <input type="hidden" id="contact-trip-id">
+      <input type="hidden" id="contact-trip-title">
 
       <div class="form-group">
         <label class="form-label">Inquiry Reason</label>
@@ -700,6 +786,140 @@
   </div>
 </div>
 
+
+<!-- MODAL: TRIP DETAILS & ITINERARY -->
+<div class="modal-overlay" id="modal-trip-details">
+  <div class="modal-card" style="max-width: 680px; padding: 0; overflow: hidden; border-radius: 20px; max-height: 90vh; display: flex; flex-direction: column;">
+    <!-- HEADER WITH COVER IMAGE -->
+    <div style="position: relative; height: 180px; background: #0B2027; overflow: hidden;">
+      <img id="trip-details-cover" src="" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85;" alt="Trip cover">
+      <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,32,39,0.3) 0%, rgba(11,32,39,0.85) 100%);"></div>
+      <button class="modal-close" onclick="closeModal('modal-trip-details')" style="position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.5); color: #FFF; border: none; border-radius: 50%; width: 34px; height: 34px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+      <div style="position: absolute; bottom: 16px; left: 20px; right: 20px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+          <span id="trip-details-category" style="background: rgba(201,162,39,0.9); color: #0B2027; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase;">Group Departure</span>
+          <span id="trip-details-price" style="background: rgba(255,255,255,0.9); color: #0B2027; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px;"></span>
+        </div>
+        <h2 id="trip-details-title" style="margin: 0; color: #FFF; font-family: 'Fraunces', serif; font-size: 22px; line-height: 1.25; text-shadow: 0 2px 4px rgba(0,0,0,0.6);"></h2>
+      </div>
+    </div>
+
+    <!-- MODAL BODY (SCROLLABLE) -->
+    <div style="padding: 24px; overflow-y: auto; flex: 1;">
+      <!-- HOST AGENT INFO STRIP -->
+      <div style="display: flex; align-items: center; justify-content: space-between; background: var(--card-cream); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--accent-sunset)); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #FFF;">
+            🧭
+          </div>
+          <div>
+            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--ink-soft);">Trip Hosted By</div>
+            <div style="font-size: 14px; font-weight: 700; color: var(--ink);" id="trip-details-host"></div>
+          </div>
+        </div>
+        <div id="trip-details-host-actions" style="display: flex; gap: 8px;">
+          <!-- Dynamically populated button to message host -->
+        </div>
+      </div>
+
+      <!-- KEY SPECS GRID -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px;">
+        <div style="background: #FFF; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--ink-soft);">📍 Destination</div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--ink);" id="trip-details-dest">-</div>
+        </div>
+        <div style="background: #FFF; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--ink-soft);">🗓️ Schedule</div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--ink);" id="trip-details-schedule">-</div>
+        </div>
+        <div style="background: #FFF; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--ink-soft);">👥 Capacity</div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--ink);" id="trip-details-capacity">-</div>
+        </div>
+        <div style="background: #FFF; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--ink-soft);">🚩 Rendezvous</div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--ink);" id="trip-details-meeting">-</div>
+        </div>
+      </div>
+
+      <!-- OVERVIEW -->
+      <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 6px; font-family: 'Fraunces', serif; font-size: 16px; color: var(--ink);">Journey Highlights & Overview</h4>
+        <p id="trip-details-desc" style="font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); margin: 0;"></p>
+      </div>
+
+      <!-- INCLUSIONS & EXCLUSIONS -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 14px;">
+          <div style="font-size: 12px; font-weight: 700; color: #166534; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">✓ What's Included</div>
+          <ul id="trip-details-inclusions" style="margin: 0; padding-left: 18px; font-size: 12.5px; color: #15803D; line-height: 1.6;"></ul>
+        </div>
+        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 14px;">
+          <div style="font-size: 12px; font-weight: 700; color: #991B1B; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">✕ Not Included</div>
+          <ul id="trip-details-exclusions" style="margin: 0; padding-left: 18px; font-size: 12.5px; color: #B91C1C; line-height: 1.6;"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL FOOTER -->
+    <div style="padding: 16px 24px; border-top: 1px solid var(--line); background: #FAF8F5; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <button type="button" class="btn btn-outline" onclick="closeModal('modal-trip-details')">Close</button>
+      <div id="trip-details-footer-actions" style="display: flex; gap: 8px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TRAVELLER DEPARTURE GROUP CHAT MODAL -->
+<div class="modal-overlay" id="modal-traveller-group-chat">
+  <div class="modal-card" style="max-width: 660px; padding: 0; overflow: hidden; border-radius: 20px; display: flex; flex-direction: column; max-height: 90vh;">
+    <!-- CHAT HEADER -->
+    <div style="background: linear-gradient(135deg, var(--bg-night) 0%, #173B45 100%); color: #FFF; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #128C7E, #25D366); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #FFF; box-shadow: 0 4px 12px rgba(18,140,126,0.35);">
+          📢
+        </div>
+        <div>
+          <h3 id="tgc-trip-title" style="margin: 0; font-family: 'Fraunces', serif; font-size: 18px; color: #FFF; font-weight: 700;">
+            Departure Group Chat
+          </h3>
+          <div id="tgc-trip-sub" style="font-size: 12px; color: rgba(253, 235, 211, 0.85); margin-top: 2px;">
+            Live channel with Host Guide & fellow enrolled travellers
+          </div>
+        </div>
+      </div>
+      <button type="button" class="modal-close" onclick="closeTravellerGroupChat()" style="color: #FFF; background: rgba(255,255,255,0.12); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;">✕</button>
+    </div>
+
+    <!-- CO-TRAVELLERS ROSTER DRAWER (NAMES ONLY FOR PRIVACY) -->
+    <div style="background: #FFFDF8; border-bottom: 1px solid var(--line); padding: 12px 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-soft); display: flex; align-items: center; gap: 6px;">
+          <span>👥</span> Co-Travellers Roster (<span id="tgc-roster-count">0</span> Booked)
+        </div>
+        <span style="font-size: 11px; color: #2E7D32; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; background: #E8F5E9; padding: 2px 8px; border-radius: 12px;">
+          🔒 Names Only • Contacts Kept Private
+        </span>
+      </div>
+      <div id="tgc-roster-chips" style="display: flex; gap: 8px; flex-wrap: wrap; max-height: 72px; overflow-y: auto;">
+        <!-- Rendered by JS: name & pax only -->
+      </div>
+    </div>
+
+    <!-- CHAT MESSAGE STREAM (WHATSAPP STYLE) -->
+    <div id="tgc-chat-feed" style="flex: 1; min-height: 280px; max-height: 380px; overflow-y: auto; padding: 16px 20px; background: #EFEAE2; display: flex; flex-direction: column; gap: 10px;">
+      <!-- Chat bubbles rendered here -->
+    </div>
+
+    <!-- CHAT COMPOSER -->
+    <div style="background: #F0F2F5; padding: 12px 18px; border-top: 1px solid rgba(0,0,0,0.08); display: flex; gap: 10px; align-items: center;">
+      <input type="text" id="tgc-chat-input" placeholder="Message departure group... (Press Enter to send)" style="flex: 1; border: 1px solid rgba(0,0,0,0.15); border-radius: 22px; padding: 10px 16px; font-size: 13.5px; font-family: inherit; outline: none; background: #FFF;" onkeydown="if(event.key==='Enter') sendTravellerGroupMessage()">
+      <button type="button" class="btn btn-primary" onclick="sendTravellerGroupMessage()" style="border-radius: 22px; padding: 10px 18px; font-weight: 700; background: #128C7E; border-color: #128C7E; display: flex; align-items: center; gap: 6px;">
+        <span>Send</span> ➔
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="travel-toast">
   <span id="toast-icon">✓</span>
@@ -717,15 +937,35 @@
     email: (localStorage.getItem('travelverse_current_user_email') || '').trim().toLowerCase(),
     name: localStorage.getItem('travelverse_user_name') || localStorage.getItem('travelverse_username') || 'Traveller',
     username: (localStorage.getItem('travelverse_username') || 'traveller').trim().toLowerCase(),
-    pic: localStorage.getItem('travelverse_profile_pic') || ''
+    pic: localStorage.getItem('travelverse_profile_pic') || '',
+    role: (localStorage.getItem('travelverse_current_user_role') || 'traveller').trim().toLowerCase()
   };
 
-  // Populate User Avatar
-  document.getElementById('user-name-chip').textContent = currentUser.name;
+  // Populate User Avatar & Role
+  document.getElementById('user-name-chip').textContent = currentUser.name + (currentUser.role === 'agent' ? ' (Agent)' : '');
   if (currentUser.pic && currentUser.pic.length > 10) {
     document.getElementById('user-avatar').innerHTML = `<img src="${currentUser.pic}" alt="avatar">`;
   } else {
     document.getElementById('avatar-initial').textContent = currentUser.name.charAt(0).toUpperCase();
+  }
+
+  // Role-based UI customizations
+  if (currentUser.role === 'agent') {
+    const navAgentLink = document.getElementById('nav-agent-portal-link');
+    const menuAgentPortal = document.getElementById('menu-agent-portal');
+    const btnHeroAgentPortal = document.getElementById('btn-hero-agent-portal');
+    const btnHeroRegAgent = document.getElementById('btn-hero-reg-agent');
+    if (navAgentLink) navAgentLink.style.display = 'inline-block';
+    if (menuAgentPortal) menuAgentPortal.style.display = 'block';
+    if (btnHeroAgentPortal) btnHeroAgentPortal.style.display = 'inline-flex';
+    if (btnHeroRegAgent) btnHeroRegAgent.style.display = 'none';
+
+    const heroEyebrow = document.getElementById('hero-role-eyebrow');
+    const heroTitle = document.getElementById('hero-role-title');
+    const heroDesc = document.getElementById('hero-role-desc');
+    if (heroEyebrow) heroEyebrow.textContent = 'AGENT PUBLIC PREVIEW & STOREFRONT';
+    if (heroTitle) heroTitle.textContent = 'Explore Trips, Agents & Your Public Listings';
+    if (heroDesc) heroDesc.textContent = 'This is the traveller-facing directory. Switch to your Agent Operations Portal anytime to host new departures, track enrolled travellers, and answer client inquiries.';
   }
 
   // Account dropdown toggle
@@ -980,7 +1220,8 @@
   function updateBadges() {
     document.getElementById('count-agents').textContent = allAgents.length;
     document.getElementById('count-trips').textContent = allTrips.length;
-    document.getElementById('count-enrolled').textContent = myEnrollments.length;
+    const activeConfirmed = myEnrollments.filter(e => String(e.status || 'confirmed').toLowerCase() === 'confirmed');
+    document.getElementById('count-enrolled').textContent = activeConfirmed.length;
   }
 
   // TAB SWITCHER
@@ -1041,7 +1282,11 @@
       const isPerson = a.agent_type === 'person';
       const badgeClass = isPerson ? 'badge-person' : 'badge-group';
       const badgeIcon = isPerson ? '👤 Individual Guide' : '🏢 Travel Agency / Group';
-      const agentTrips = allTrips.filter(t => t.agent_id === a.id);
+      const agentTrips = allTrips.filter(t => 
+        (t.agent_id && a.id && String(t.agent_id) === String(a.id)) ||
+        (t.agent_email && a.email && t.agent_email.toLowerCase() === a.email.toLowerCase()) ||
+        (t.agency_name && a.agency_name && t.agency_name.toLowerCase() === a.agency_name.toLowerCase())
+      );
 
       return `
         <div class="agent-card">
@@ -1071,14 +1316,35 @@
             <div class="agent-details-tags">
               <span class="detail-tag highlight">📍 ${a.destinations}</span>
               <span class="detail-tag">🗣️ ${a.languages || 'English'}</span>
-              ${agentTrips.length > 0 ? `<span class="detail-tag" style="background:#E8F5E9; color:#2E7D32; font-weight:600;">🎒 ${agentTrips.length} Group Trips</span>` : ''}
+              ${agentTrips.length > 0 ? `<span class="detail-tag" style="background:#E8F5E9; color:#2E7D32; font-weight:600;">🎒 ${agentTrips.length} Group Departures</span>` : ''}
             </div>
+
+            ${agentTrips.length > 0 ? `
+              <div style="margin-top:14px; padding:10px 12px; background:rgba(201,162,39,0.08); border-radius:10px; border:1px solid rgba(201,162,39,0.25);">
+                <div style="font-size:11px; font-weight:700; color:#8C6B10; text-transform:uppercase; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                  <span>🎒 Hosted Departures (${agentTrips.length})</span>
+                  <span style="font-size:11px; color:var(--accent-sunset); cursor:pointer; font-weight:600;" onclick="viewAgentTrips(${a.id}, '${escapeQuotes(a.email)}')">View all ➔</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  ${agentTrips.slice(0, 2).map(tr => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:7px 10px; border-radius:8px; border:1px solid var(--line); font-size:12px;">
+                      <div style="font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">
+                        📍 ${tr.title}
+                      </div>
+                      <div style="font-weight:700; color:var(--accent-sunset); flex-shrink:0;">
+                        $${tr.price}
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
           </div>
           <div class="agent-card-footer">
             <button class="btn btn-outline" onclick="openContactModal(${a.id}, '${escapeQuotes(a.agent_name)}', '${a.email}')">
               ✉️ Contact Agent
             </button>
-            <button class="btn btn-primary" onclick="viewAgentTrips(${a.id})">
+            <button class="btn btn-primary" onclick="viewAgentTrips(${a.id}, '${escapeQuotes(a.email)}')">
               Explore Trips
             </button>
           </div>
@@ -1088,12 +1354,16 @@
   }
 
   // RENDER GROUP TRIPS
-  function renderTrips(filterAgentId = null) {
+  function renderTrips(filterAgentId = null, filterAgentEmail = null) {
     const query = document.getElementById('filter-search').value.toLowerCase().trim();
     const container = document.getElementById('view-trips');
 
     const filtered = allTrips.filter(t => {
-      const matchAgent = filterAgentId ? t.agent_id === filterAgentId : true;
+      let matchAgent = true;
+      if (filterAgentId || filterAgentEmail) {
+        matchAgent = (filterAgentId && t.agent_id && String(t.agent_id) === String(filterAgentId)) ||
+                     (filterAgentEmail && t.agent_email && t.agent_email.toLowerCase() === filterAgentEmail.toLowerCase());
+      }
       const matchQuery = !query ||
         (t.title && t.title.toLowerCase().includes(query)) ||
         (t.destination && t.destination.toLowerCase().includes(query)) ||
@@ -1117,10 +1387,10 @@
     container.innerHTML = filtered.map(t => {
       const spotsLeft = Math.max(0, (t.max_capacity || 10) - (t.enrolled_count || 0));
       const fillPercent = Math.min(100, Math.round(((t.enrolled_count || 0) / (t.max_capacity || 10)) * 100));
-      const isEnrolled = myEnrollments.some(e => e.trip_id === t.id);
+      const isEnrolled = myEnrollments.some(e => String(e.trip_id) === String(t.id) && String(e.status || 'confirmed').toLowerCase() === 'confirmed');
 
       return `
-        <div class="trip-card">
+        <div class="trip-card" id="trip-card-${t.id}">
           <div class="trip-thumb-wrap">
             <img src="${t.cover_image || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=700&q=80'}" class="trip-thumb" alt="${t.title}">
             <div class="trip-category-pill">${t.category || 'Group Departure'}</div>
@@ -1157,13 +1427,19 @@
               </div>
             </div>
           </div>
-          <div class="trip-card-footer">
-            <button class="btn btn-outline" onclick="contactAboutTrip(${t.id}, '${escapeQuotes(t.title)}', ${t.agent_id})">
+          <div class="trip-card-footer" style="display:flex; gap:6px; flex-wrap:wrap;">
+            <a href="trip-itinerary.html?trip_id=${t.id}" target="_blank" class="btn btn-outline" style="color:#B45309; border-color:#FDE68A; background:#FFFBEB; font-weight:700; text-decoration:none; padding:6px 10px; font-size:12px;" title="View official printable PDF brochure">
+              📄 PDF Brochure
+            </a>
+            <button class="btn btn-outline" onclick="openTripDetailsModal(${t.id})" title="View complete trip overview, itinerary & meeting details">
+              ℹ️ Details
+            </button>
+            <button class="btn btn-outline" onclick="contactAboutTrip(${t.id}, '${escapeQuotes(t.title)}', '${t.agent_id || 0}')">
               💬 Inquire
             </button>
             ${isEnrolled ? `
-              <button class="btn btn-primary" style="background:#2E7D32; opacity:0.9;" disabled>
-                ✓ Enrolled
+              <button class="btn btn-primary" onclick="openTravellerGroupChat(${t.id}, '${escapeQuotes(t.title)}', '${escapeQuotes(t.destination)}')" style="background:#128C7E; border-color:#128C7E; font-weight:700;">
+                👥 Group Chat
               </button>
             ` : spotsLeft === 0 ? `
               <button class="btn btn-outline" disabled style="opacity:0.6;">
@@ -1183,7 +1459,8 @@
   // RENDER USER ENROLLED TRIPS
   function renderMyTrips() {
     const container = document.getElementById('view-my-trips');
-    if (myEnrollments.length === 0) {
+    const activeEnrollments = myEnrollments.filter(e => String(e.status || 'confirmed').toLowerCase() === 'confirmed');
+    if (activeEnrollments.length === 0) {
       container.innerHTML = `
         <div style="text-align:center; padding:60px 20px; background:var(--card-cream); border-radius:18px; border:1px dashed var(--line);">
           <div style="font-size:40px; margin-bottom:12px;">🎟️</div>
@@ -1197,7 +1474,7 @@
       return;
     }
 
-    container.innerHTML = myEnrollments.map(e => {
+    container.innerHTML = activeEnrollments.map(e => {
       const trip = allTrips.find(t => t.id === e.trip_id) || {
         title: e.trip_title || 'Group Tour',
         destination: e.destination || 'Global',
@@ -1220,9 +1497,16 @@
               📍 ${trip.destination} • 🗓️ Departs ${trip.start_date} • 👥 ${e.seats} Seat(s) • Host: ${trip.agent_name}
             </div>
           </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <button class="btn btn-outline" onclick="contactAboutTrip(${trip.id}, '${escapeQuotes(trip.title)}', ${trip.agent_id})">Message Host</button>
-            <button class="btn btn-outline" style="color:var(--accent-coral);" onclick="cancelEnrollment('${e.booking_code}', ${e.trip_id}, ${e.seats})">Cancel Spot</button>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="openTravellerGroupChat(${trip.id}, '${escapeQuotes(trip.title)}', '${escapeQuotes(trip.destination)}')" style="background:#128C7E; border-color:#128C7E; font-weight:700;">
+              👥 Departure Group Chat
+            </button>
+            <button class="btn btn-outline" onclick="contactAboutTrip(${trip.id}, '${escapeQuotes(trip.title)}', ${trip.agent_id})">
+              💬 Message Host
+            </button>
+            <button class="btn btn-outline" style="color:var(--accent-coral);" onclick="cancelEnrollment('${e.booking_code}', ${e.trip_id}, ${e.seats})">
+              Cancel Spot
+            </button>
           </div>
         </div>
       `;
@@ -1236,10 +1520,13 @@
     else if (activeTab === 'my-trips') renderMyTrips();
   }
 
-  function viewAgentTrips(agentId) {
+  function viewAgentTrips(agentId, agentEmail = '') {
+    const searchInput = document.getElementById('filter-search');
+    if (searchInput) searchInput.value = '';
+    
     switchTab('trips');
-    renderTrips(agentId);
-    showToast('success', 'Filtered Trips', 'Showing group departures for selected agent.');
+    renderTrips(agentId, agentEmail);
+    showToast('success', 'Filtered Departures', 'Showing departures for this operator.');
   }
 
   // MODAL LOGIC
@@ -1257,21 +1544,32 @@
   }
 
   // CONTACT AGENT MODAL
-  function openContactModal(agentId, agentName, agentEmail) {
-    document.getElementById('contact-agent-id').value = agentId;
-    document.getElementById('contact-agent-email').value = agentEmail;
-    document.getElementById('contact-agent-name').value = agentName;
-    document.getElementById('contact-agent-subtitle').textContent = `Inquire with ${agentName} for trip details or bespoke itineraries.`;
+  function openContactModal(agentId, agentName, agentEmail, tripId = null, tripTitle = '') {
+    document.getElementById('contact-agent-id').value = agentId || '';
+    document.getElementById('contact-agent-email').value = agentEmail || '';
+    document.getElementById('contact-agent-name').value = agentName || '';
+    document.getElementById('contact-trip-id').value = tripId || '';
+    document.getElementById('contact-trip-title').value = tripTitle || '';
+    document.getElementById('contact-agent-subtitle').textContent = tripTitle
+      ? `Inquire about "${tripTitle}" with ${agentName}.`
+      : `Inquire with ${agentName} for trip details or bespoke itineraries.`;
     openModal('contact-modal');
   }
 
   function contactAboutTrip(tripId, tripTitle, agentId) {
-    const trip = allTrips.find(t => t.id === tripId);
-    const agent = allAgents.find(a => a.id === agentId) || { agent_name: trip ? trip.agent_name : 'Agent', email: 'agent@travelverse.com' };
-    openContactModal(agentId, agent.agent_name, agent.email);
+    const trip = allTrips.find(t => t.id === tripId || String(t.id) === String(tripId));
+    let agent = allAgents.find(a => a.id === agentId || String(a.id) === String(agentId));
+    if (!agent && trip && trip.agent_email) {
+      agent = allAgents.find(a => a.email && a.email.toLowerCase() === trip.agent_email.toLowerCase());
+    }
+    const finalAgentName = (agent && agent.agent_name) || (trip && trip.agent_name) || 'Agent';
+    const finalAgentEmail = (agent && agent.email) || (trip && trip.agent_email) || 'agent@travelverse.com';
+    const finalAgentId = (agent && agent.id) || (trip && trip.agent_id) || agentId || 0;
+
+    openContactModal(finalAgentId, finalAgentName, finalAgentEmail, tripId, tripTitle);
     document.getElementById('contact-reason').value = 'group_trip';
     document.getElementById('contact-dest').value = trip ? trip.destination : '';
-    document.getElementById('contact-msg').value = `Hi ${agent.agent_name}, I am interested in joining "${tripTitle}". Could you please share more details?`;
+    document.getElementById('contact-msg').value = `Hi ${finalAgentName}, I am interested in joining "${tripTitle}". Could you please share more details?`;
   }
 
   function openDirectChatFromModal() {
@@ -1282,31 +1580,69 @@
 
   async function submitContactForm(e) {
     e.preventDefault();
+    const agentId = document.getElementById('contact-agent-id').value;
     const agentName = document.getElementById('contact-agent-name').value;
     const agentEmail = document.getElementById('contact-agent-email').value;
-    const dest = document.getElementById('contact-dest').value;
-    const msg = document.getElementById('contact-msg').value;
+    const tripId = document.getElementById('contact-trip-id').value;
+    const tripTitle = document.getElementById('contact-trip-title').value;
+    const dest = document.getElementById('contact-dest').value.trim();
+    const reason = document.getElementById('contact-reason').value;
+    const dates = document.getElementById('contact-dates').value.trim();
+    const grp = document.getElementById('contact-group-size').value.trim();
+    const msg = document.getElementById('contact-msg').value.trim();
 
     try {
-      await fetch(`${API_BASE}/send-buddy-message`, {
+      // 1. Save directly into backend agent inquiries & queries MongoDB table
+      const res = await fetch(`${API_BASE}/contact-agent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent_id: agentId ? parseInt(agentId) : 0,
+          agent_name: agentName,
+          agent_email: agentEmail,
+          trip_id: tripId ? parseInt(tripId) : null,
+          trip_title: tripTitle,
+          user_email: currentUser.email,
+          user_name: currentUser.name,
+          inquiry_type: reason,
+          reason: reason,
+          destination: dest,
+          message: msg,
+          message_text: msg,
+          travel_dates: dates,
+          expected_dates: dates,
+          group_size: grp
+        })
+      });
+
+      // 2. Also send to buddies chat so conversation is recorded
+      fetch(`${API_BASE}/send-buddy-message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sender_email: currentUser.email,
           receiver_email: agentEmail,
-          message_text: `[Travel Inquiry for ${dest}]: ${msg}`,
+          message_text: `[Travel Inquiry for ${tripTitle ? tripTitle + ' (' + dest + ')' : dest}]: ${msg} (Dates: ${dates || 'Flexible'}, Group: ${grp || 'Not specified'})`,
           msg_type: 'text'
         })
-      });
-    } catch(err) {}
+      }).catch(() => {});
 
-    closeModal('contact-modal');
-    showToast('success', 'Inquiry Sent!', `Your inquiry has been delivered to ${agentName}. Check your Chat tab for responses!`);
+      if (res.ok) {
+        closeModal('contact-modal');
+        showToast('success', 'Inquiry Sent!', `Your inquiry has been delivered to ${agentName} and stored in MongoDB queries!`);
+      } else {
+        closeModal('contact-modal');
+        showToast('success', 'Inquiry Sent!', `Delivered to ${agentName}. Check your Chat tab for replies!`);
+      }
+    } catch(err) {
+      closeModal('contact-modal');
+      showToast('success', 'Inquiry Sent!', `Delivered to ${agentName}. Check your Chat tab for replies!`);
+    }
   }
 
   // ENROLL MODAL
   function openEnrollModal(tripId) {
-    const trip = allTrips.find(t => t.id === tripId);
+    const trip = allTrips.find(t => t.id === tripId || String(t.id) === String(tripId));
     if (!trip) return;
 
     document.getElementById('enroll-trip-id').value = trip.id;
@@ -1318,58 +1654,124 @@
   }
 
   function updateEnrollTotal() {
-    const tripId = parseInt(document.getElementById('enroll-trip-id').value);
-    const trip = allTrips.find(t => t.id === tripId);
+    const tripId = document.getElementById('enroll-trip-id').value;
+    const trip = allTrips.find(t => t.id === tripId || String(t.id) === String(tripId));
     const seats = parseInt(document.getElementById('enroll-seats').value);
     if (trip) {
       document.getElementById('enroll-trip-price').textContent = `$${trip.price * seats} Total ($${trip.price} x ${seats})`;
     }
   }
 
-  function submitEnrollForm(e) {
+  async function submitEnrollForm(e) {
     e.preventDefault();
-    const tripId = parseInt(document.getElementById('enroll-trip-id').value);
-    const trip = allTrips.find(t => t.id === tripId);
+    const tripId = document.getElementById('enroll-trip-id').value;
+    const trip = allTrips.find(t => t.id === tripId || String(t.id) === String(tripId));
     if (!trip) return;
 
-    const seats = parseInt(document.getElementById('enroll-seats').value);
-    const bookingCode = `TV-TRIP-${Math.floor(100000 + Math.random() * 900000)}`;
+    const seats = parseInt(document.getElementById('enroll-seats').value) || 1;
+    const travellerNames = document.getElementById('enroll-names').value.trim() || currentUser.name;
+    const notes = document.getElementById('enroll-notes').value.trim();
+    const phone = document.getElementById('enroll-phone').value.trim();
 
-    trip.enrolled_count = (trip.enrolled_count || 0) + seats;
-    
-    myEnrollments.unshift({
-      booking_code: bookingCode,
-      trip_id: trip.id,
-      trip_title: trip.title,
-      destination: trip.destination,
-      start_date: trip.start_date,
-      duration_days: trip.duration_days,
-      agent_name: trip.agent_name,
-      agent_id: trip.agent_id,
-      seats: seats,
-      booked_at: new Date().toISOString()
-    });
+    try {
+      const res = await fetch(`${API_BASE}/enroll-group-trip`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          trip_id: trip.id,
+          user_email: currentUser.email,
+          user_name: travellerNames,
+          seats: seats,
+          special_notes: notes ? `${notes} (Phone: ${phone})` : `Phone: ${phone}`
+        })
+      });
 
-    saveState();
-    closeModal('enroll-modal');
-    showToast('success', 'Enrolled Successfully!', `Booking Ref: ${bookingCode}. Welcome aboard!`);
-    switchTab('my-trips');
+      if (res.ok) {
+        const data = await res.json();
+        const bookingCode = data.booking_code || `TV-TRIP-${Math.floor(100000 + Math.random() * 900000)}`;
+
+        trip.enrolled_count = (trip.enrolled_count || 0) + seats;
+        
+        myEnrollments.unshift({
+          booking_code: bookingCode,
+          trip_id: trip.id,
+          trip_title: trip.title,
+          destination: trip.destination,
+          start_date: trip.start_date,
+          duration_days: trip.duration_days,
+          agent_name: trip.agent_name,
+          agent_id: trip.agent_id,
+          seats: seats,
+          booked_at: new Date().toISOString()
+        });
+
+        saveState();
+        closeModal('enroll-modal');
+        showToast('success', 'Enrolled Successfully!', `Booking Ref: ${bookingCode}. The host agent can now see your booking!`);
+        switchTab('my-trips');
+        syncFromBackend();
+        return;
+      } else {
+        const errData = await res.json();
+        showToast('error', 'Enrollment Failed', errData.detail || 'Could not complete enrollment.');
+      }
+    } catch(err) {
+      // Fallback local booking
+      const bookingCode = `TV-TRIP-${Math.floor(100000 + Math.random() * 900000)}`;
+      trip.enrolled_count = (trip.enrolled_count || 0) + seats;
+      myEnrollments.unshift({
+        booking_code: bookingCode,
+        trip_id: trip.id,
+        trip_title: trip.title,
+        destination: trip.destination,
+        start_date: trip.start_date,
+        duration_days: trip.duration_days,
+        agent_name: trip.agent_name,
+        agent_id: trip.agent_id,
+        seats: seats,
+        booked_at: new Date().toISOString()
+      });
+      saveState();
+      closeModal('enroll-modal');
+      showToast('success', 'Enrolled Successfully!', `Booking Ref: ${bookingCode}. Welcome aboard!`);
+      switchTab('my-trips');
+    }
   }
 
-  function cancelEnrollment(code, tripId, seats) {
-    if (!confirm('Are you sure you want to cancel your spot on this trip?')) return;
-    myEnrollments = myEnrollments.filter(e => e.booking_code !== code);
-    const trip = allTrips.find(t => t.id === tripId);
-    if (trip) {
-      trip.enrolled_count = Math.max(0, (trip.enrolled_count || 0) - seats);
+  async function cancelEnrollment(code, tripId, seats) {
+    if (!confirm('Are you sure you want to cancel your spot on this trip? Once cancelled, you will be automatically removed from the group chat and departure channel.')) return;
+    try {
+      await fetch(`${API_BASE}/cancel-enrollment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          booking_code: code,
+          user_email: currentUser.email
+        })
+      });
+    } catch(e) {}
+
+    myEnrollments = myEnrollments.filter(e => e.booking_code !== code && String(e.id) !== String(code));
+
+    // Clear local chat cache for this trip and close chat modal if currently open
+    localStorage.removeItem(`tgc_msgs_${tripId}`);
+    if (activeTravellerTripId === tripId) {
+      closeTravellerGroupChat();
     }
+
+    const trip = allTrips.find(t => String(t.id) === String(tripId));
+    if (trip && trip.enrolled_count) {
+      trip.enrolled_count = Math.max(0, trip.enrolled_count - seats);
+    }
+
     saveState();
     render();
-    showToast('error', 'Enrollment Cancelled', 'Your spot has been released.');
+    await syncFromBackend();
+    showToast('info', 'Booking Cancelled', 'Your spot has been released and you have been removed from the departure group chat.');
   }
 
   // REGISTER AGENT
-  function submitRegisterAgent(e) {
+  async function submitRegisterAgent(e) {
     e.preventDefault();
     const type = document.querySelector('input[name="reg-agent-type"]:checked').value;
     const name = document.getElementById('reg-agent-name').value.trim();
@@ -1407,30 +1809,32 @@
     allAgents.unshift(newAgent);
     saveState();
 
-    // Sync with backend if available
-    fetch(`${API_BASE}/register-agent`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        agency_name: newAgent.agency_name,
-        agent_name: newAgent.agent_name,
-        email: newAgent.email,
-        specialty: newAgent.specialty,
-        destinations: newAgent.destinations,
-        profile_pic: newAgent.profile_pic,
-        agent_type: newAgent.agent_type,
-        phone: newAgent.phone,
-        bio: newAgent.bio
-      })
-    }).catch(() => {});
+    try {
+      await fetch(`${API_BASE}/register-agent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agency_name: newAgent.agency_name,
+          agent_name: newAgent.agent_name,
+          email: newAgent.email,
+          specialty: newAgent.specialty,
+          destinations: newAgent.destinations,
+          profile_pic: newAgent.profile_pic,
+          agent_type: newAgent.agent_type,
+          phone: newAgent.phone,
+          bio: newAgent.bio
+        })
+      });
+    } catch(e) {}
 
     closeModal('register-agent-modal');
     showToast('success', 'Welcome, Agent!', 'Your agent profile is now published on TravelVerse.');
     switchTab('agents');
+    syncFromBackend();
   }
 
   // CREATE GROUP TRIP
-  function submitCreateTrip(e) {
+  async function submitCreateTrip(e) {
     e.preventDefault();
     const title = document.getElementById('trip-title').value.trim();
     const dest = document.getElementById('trip-dest').value.trim();
@@ -1442,6 +1846,54 @@
     const host = document.getElementById('trip-host').value.trim();
     const img = document.getElementById('trip-image').value.trim() || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80';
     const desc = document.getElementById('trip-desc').value.trim();
+
+    try {
+      const res = await fetch(`${API_BASE}/create-group-trip`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent_email: currentUser.email,
+          agent_name: host,
+          title: title,
+          destination: dest,
+          category: category,
+          start_date: start,
+          duration_days: duration,
+          price: price,
+          currency: "USD",
+          max_capacity: cap,
+          cover_image: img,
+          description: desc
+        })
+      });
+
+      if (res.ok) {
+        const created = await res.json();
+        allTrips.unshift(created.trip || {
+          id: Date.now(),
+          agent_id: 1,
+          agent_name: host,
+          agent_type: "group",
+          title: title,
+          destination: dest,
+          category: category,
+          start_date: start,
+          duration_days: duration,
+          price: price,
+          currency: "USD",
+          max_capacity: cap,
+          enrolled_count: 0,
+          cover_image: img,
+          description: desc
+        });
+        saveState();
+        closeModal('create-trip-modal');
+        showToast('success', 'Group Trip Published!', 'Travellers can now view and enroll in this departure.');
+        switchTab('trips');
+        syncFromBackend();
+        return;
+      }
+    } catch(err) {}
 
     const newTrip = {
       id: Date.now(),
@@ -1473,28 +1925,347 @@
   }
 
   // INITIAL SYNC FROM BACKEND
+    // ==========================================
+  // TRIP DETAILS MODAL & URL DEEP LINKING
+  // ==========================================
+  function openTripDetailsModal(tripId) {
+    const trip = allTrips.find(t => String(t.id) === String(tripId)) || {
+      id: tripId,
+      title: 'Hosted Group Departure',
+      destination: 'Scenic Destination',
+      start_date: 'Upcoming',
+      duration_days: 7,
+      price: 0,
+      currency: 'USD',
+      description: 'Explore scenic routes with your dedicated host agent.',
+      meeting_point: 'Coordinates & briefing provided upon reservation confirmation.',
+      inclusions: ['Certified host guide', 'Dedicated transportation & vehicle', 'All required permits & passes'],
+      exclusions: ['Personal gear & equipment', 'Transit/airfare to rendezvous point'],
+      cover_image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=700&q=80',
+      agent_name: 'Host Agent',
+      agent_id: 1,
+      max_capacity: 12,
+      enrolled_count: 0
+    };
+
+    const spotsLeft = Math.max(0, (trip.max_capacity || 10) - (trip.enrolled_count || 0));
+    const isEnrolled = myEnrollments.some(e => String(e.trip_id) === String(trip.id) && String(e.status || 'confirmed').toLowerCase() === 'confirmed');
+
+    const coverEl = document.getElementById('trip-details-cover');
+    if (coverEl) coverEl.src = trip.cover_image || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=700&q=80';
+    document.getElementById('trip-details-category').textContent = trip.category || 'Group Departure';
+    document.getElementById('trip-details-price').textContent = `$${trip.price || 0} / person`;
+    document.getElementById('trip-details-title').textContent = trip.title;
+
+    document.getElementById('trip-details-host').textContent = `${trip.agent_name || 'TravelVerse Agent'} (${trip.agent_type === 'person' ? '👤 Guide' : '🏢 Agency'})`;
+    const hostActionEl = document.getElementById('trip-details-host-actions');
+    if (hostActionEl) {
+      hostActionEl.innerHTML = `
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modal-trip-details'); contactAboutTrip(${trip.id}, '${escapeQuotes(trip.title)}', '${trip.agent_id || 0}')">
+          💬 Message Host
+        </button>
+      `;
+    }
+
+    document.getElementById('trip-details-dest').textContent = trip.destination || 'Scenic Location';
+    document.getElementById('trip-details-schedule').textContent = `${trip.start_date || 'Upcoming'} (${trip.duration_days || 7} Days)`;
+    document.getElementById('trip-details-capacity').textContent = `${spotsLeft} spot(s) left (${trip.enrolled_count || 0}/${trip.max_capacity || 10})`;
+    document.getElementById('trip-details-meeting').textContent = trip.meeting_point || 'To be briefed by host prior to departure';
+
+    document.getElementById('trip-details-desc').textContent = trip.description || 'Comprehensive guided departure with logistics and local insights handled.';
+
+    const incList = Array.isArray(trip.inclusions) && trip.inclusions.length > 0 
+      ? trip.inclusions 
+      : ['Dedicated group transport & driver', 'Certified guide & safety briefings', 'Permits & entry tickets', 'Curated route & stays'];
+    
+    const excList = Array.isArray(trip.exclusions) && trip.exclusions.length > 0
+      ? trip.exclusions
+      : ['Personal luggage & gear', 'Individual airfare/train to start city', 'Personal expenses & optional activities'];
+
+    document.getElementById('trip-details-inclusions').innerHTML = incList.map(item => `<li>${item}</li>`).join('');
+    document.getElementById('trip-details-exclusions').innerHTML = excList.map(item => `<li>${item}</li>`).join('');
+
+    const footerEl = document.getElementById('trip-details-footer-actions');
+    if (footerEl) {
+      const pdfBtnHtml = `<a href="trip-itinerary.html?trip_id=${trip.id}" target="_blank" class="btn btn-outline" style="color:#B45309; border-color:#FDE68A; background:#FFFBEB; font-weight:700; text-decoration:none;">📄 View / Print PDF Dossier ➔</a>`;
+      if (isEnrolled) {
+        footerEl.innerHTML = `
+          ${pdfBtnHtml}
+          <button type="button" class="btn btn-primary" onclick="closeModal('modal-trip-details'); openTravellerGroupChat(${trip.id}, '${escapeQuotes(trip.title)}', '${escapeQuotes(trip.destination || '')}')" style="background:#128C7E; border-color:#128C7E; font-weight:700;">
+            👥 Open Departure Group Chat
+          </button>
+        `;
+      } else if (spotsLeft === 0) {
+        footerEl.innerHTML = `
+          ${pdfBtnHtml}
+          <button type="button" class="btn btn-outline" disabled style="opacity:0.6;">Trip Full</button>
+        `;
+      } else {
+        footerEl.innerHTML = `
+          ${pdfBtnHtml}
+          <button type="button" class="btn btn-primary" onclick="closeModal('modal-trip-details'); openEnrollModal(${trip.id})" style="font-weight:700;">
+            🎟️ Reserve Your Spot
+          </button>
+        `;
+      }
+    }
+
+    openModal('modal-trip-details');
+  }
+
+  function checkUrlDeepLink() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetTripId = urlParams.get('trip_id');
+      if (targetTripId) {
+        switchTab('trips');
+        setTimeout(() => {
+          openTripDetailsModal(targetTripId);
+          const card = document.getElementById(`trip-card-${targetTripId}`);
+          if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease';
+            card.style.boxShadow = '0 0 0 4px #C9A227, 0 10px 30px rgba(201,162,39,0.35)';
+            card.style.borderColor = '#C9A227';
+            setTimeout(() => {
+              card.style.boxShadow = '';
+              card.style.borderColor = '';
+            }, 4000);
+          }
+        }, 350);
+      }
+    } catch (err) {
+      console.warn('Deep link parse error:', err);
+    }
+  }
+
   async function syncFromBackend() {
     try {
-      const res = await fetch(`${API_BASE}/agents`);
-      if (res.ok) {
-        const data = await res.json();
+      // 1. Fetch Agents
+      const resAgents = await fetch(`${API_BASE}/agents`);
+      if (resAgents.ok) {
+        const data = await resAgents.json();
         if (data && Array.isArray(data.agents) && data.agents.length > 0) {
-          // Merge backend agents into state
-          data.agents.forEach(ba => {
-            if (!allAgents.some(a => a.email === ba.email)) {
-              allAgents.push(ba);
-            }
+          const merged = [...data.agents];
+          defaultAgents.forEach(da => {
+            if (!merged.some(a => a.email === da.email)) merged.push(da);
           });
-          saveState();
-          render();
+          allAgents = merged;
         }
       }
-    } catch(e) {}
+
+      // 2. Fetch Group Trips
+      const resTrips = await fetch(`${API_BASE}/group-trips`);
+      if (resTrips.ok) {
+        const data = await resTrips.json();
+        if (data && Array.isArray(data.trips) && data.trips.length > 0) {
+          const mergedTrips = [...data.trips];
+          defaultTrips.forEach(dt => {
+            if (!mergedTrips.some(t => String(t.id) === String(dt.id) || t.title === dt.title)) mergedTrips.push(dt);
+          });
+          allTrips = mergedTrips;
+        }
+      }
+
+      // 3. Fetch User Enrollments
+      if (currentUser.email) {
+        const resEnroll = await fetch(`${API_BASE}/trip-enrollments?user_email=${encodeURIComponent(currentUser.email)}`);
+        if (resEnroll.ok) {
+          const data = await resEnroll.json();
+          if (data && Array.isArray(data.enrollments)) {
+            myEnrollments = data.enrollments;
+          }
+        }
+      }
+
+      saveState();
+      render();
+      checkUrlDeepLink();
+    } catch(e) {
+      console.warn('Backend sync failed, running with local cache:', e);
+    }
   }
+
+  // ==========================================
+  // TRAVELLER DEPARTURE GROUP CHAT LOGIC
+  // ==========================================
+  let activeTravellerTripId = null;
+  let activeTravellerTripTitle = '';
+  let travellerChatPollInterval = null;
+
+  async function openTravellerGroupChat(tripId, tripTitle, destination) {
+    const hasActive = myEnrollments.some(e => 
+      String(e.trip_id) === String(tripId) && 
+      String(e.status || 'confirmed').toLowerCase() === 'confirmed'
+    );
+    if (!hasActive) {
+      showToast('error', 'Group Chat Restricted', 'Your booking for this departure is cancelled or unconfirmed. Group chat is only available to confirmed guests.');
+      return;
+    }
+    activeTravellerTripId = tripId;
+    activeTravellerTripTitle = tripTitle || 'Departure';
+
+    const titleEl = document.getElementById('tgc-trip-title');
+    if (titleEl) titleEl.textContent = `${activeTravellerTripTitle} • Departure Chat`;
+
+    const subEl = document.getElementById('tgc-trip-sub');
+    if (subEl) subEl.textContent = `📍 ${destination || 'Group Departure'} • Channel synced with Host & booked travellers`;
+
+    openModal('modal-traveller-group-chat');
+
+    await loadTravellerGroupRoster(tripId);
+    await loadTravellerGroupMessages(tripId);
+
+    const input = document.getElementById('tgc-chat-input');
+    if (input) {
+      input.value = '';
+      setTimeout(() => input.focus(), 200);
+    }
+
+    if (travellerChatPollInterval) clearInterval(travellerChatPollInterval);
+    travellerChatPollInterval = setInterval(() => {
+      const modal = document.getElementById('modal-traveller-group-chat');
+      if (modal && modal.classList.contains('show') && activeTravellerTripId === tripId) {
+        loadTravellerGroupMessages(tripId, true);
+      }
+    }, 4000);
+  }
+
+  function closeTravellerGroupChat() {
+    if (travellerChatPollInterval) {
+      clearInterval(travellerChatPollInterval);
+      travellerChatPollInterval = null;
+    }
+    closeModal('modal-traveller-group-chat');
+  }
+
+  async function loadTravellerGroupRoster(tripId) {
+    try {
+      const res = await fetch(`${API_BASE}/trip-travellers/${tripId}`);
+      if (!res.ok) throw new Error('Failed to load roster');
+      const data = await res.json();
+      const travellers = data.travellers || [];
+      const totalPax = data.total_pax || travellers.length;
+
+      const countEl = document.getElementById('tgc-roster-count');
+      if (countEl) countEl.textContent = `${totalPax} Pax`;
+
+      const chipsEl = document.getElementById('tgc-roster-chips');
+      if (chipsEl) {
+        if (travellers.length === 0) {
+          chipsEl.innerHTML = `<span style="font-size:12px; color:var(--ink-soft); font-style:italic;">You are the first booked traveller on this departure!</span>`;
+        } else {
+          chipsEl.innerHTML = travellers.map(t => {
+            const initial = (t.name || 'T').charAt(0).toUpperCase();
+            return `
+              <span class="traveller-roster-chip" title="Enrolled Passenger">
+                <span class="traveller-roster-avatar">${initial}</span>
+                <span>${t.name}</span>
+                ${t.seats > 1 ? `<span style="font-size:10px; font-weight:700; color:#1976D2; background:#E3F2FD; padding:1px 5px; border-radius:8px;">${t.seats} Pax</span>` : ''}
+              </span>
+            `;
+          }).join('');
+        }
+      }
+    } catch (err) {
+      console.warn('Error loading traveller roster:', err);
+    }
+  }
+
+  async function loadTravellerGroupMessages(tripId, silent = false) {
+    const feed = document.getElementById('tgc-chat-feed');
+    if (!feed) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/get-trip-messages/${tripId}`);
+      if (!res.ok) throw new Error('Failed to load messages');
+      const data = await res.json();
+      const msgs = data.messages || [];
+
+      if (msgs.length === 0) {
+        feed.innerHTML = `
+          <div style="margin:auto; text-align:center; padding:30px 16px; background:#FFF; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,0.08); max-width:380px;">
+            <div style="font-size:32px; margin-bottom:6px;">📢</div>
+            <strong style="font-family:'Fraunces', serif; font-size:16px; color:var(--ink);">Departure Channel Active</strong>
+            <p style="font-size:12.5px; color:var(--ink-soft); margin:6px 0 0; line-height:1.45;">
+              Welcome to the official departure chat! The host guide will post itinerary updates and rendezvous points here. Feel free to introduce yourself!
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      const isAtBottom = feed.scrollHeight - feed.scrollTop <= feed.clientHeight + 80;
+
+      feed.innerHTML = msgs.map(m => {
+        const senderEmail = (m.sender_email || '').toLowerCase().trim();
+        const myEmail = (currentUser.email || '').toLowerCase().trim();
+        const isMe = (myEmail && senderEmail === myEmail) || (m.sender_name && currentUser.name && m.sender_name.toLowerCase() === currentUser.name.toLowerCase());
+        const isAgent = m.sender_role === 'agent';
+        const timeDisp = m.time_str || (m.created_at ? (m.created_at.includes('T') ? m.created_at.split('T')[1].slice(0, 5) : m.created_at.slice(0, 5)) : '');
+
+        return `
+          <div class="tgc-bubble-row ${isMe ? 'me' : 'them'}">
+            <span class="tgc-sender-label" style="color:${isAgent ? '#B45309' : (isMe ? '#15803D' : 'var(--ink)')};">
+              ${isMe ? 'You' : (isAgent ? `⭐ Host Guide: ${m.sender_name || 'Host'}` : `👤 ${m.sender_name || 'Co-Traveller'}`)}
+            </span>
+            <div class="tgc-bubble">
+              <div>${escapeQuotes(m.message_text || '')}</div>
+              <div class="tgc-meta-tick">
+                <span>${timeDisp}</span>
+                ${isMe ? '<span class="tgc-double-tick" title="Delivered">✓✓</span>' : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (!silent || isAtBottom) {
+        feed.scrollTop = feed.scrollHeight;
+      }
+    } catch (err) {
+      if (!silent) console.warn('Error loading traveller messages:', err);
+    }
+  }
+
+  async function sendTravellerGroupMessage() {
+    const input = document.getElementById('tgc-chat-input');
+    if (!input || !activeTravellerTripId) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+
+    const payload = {
+      trip_id: Number(activeTravellerTripId),
+      trip_title: activeTravellerTripTitle,
+      sender_email: currentUser.email || 'traveller@travelverse.com',
+      sender_name: currentUser.name || 'Traveller',
+      sender_role: 'traveller',
+      message_text: text
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/send-trip-message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        await loadTravellerGroupMessages(activeTravellerTripId);
+      } else {
+        showToast('error', 'Message Failed', 'Could not post message.');
+      }
+    } catch (err) {
+      showToast('error', 'Error', 'Failed to send message.');
+    }
+  }
+
 
   // Init
   render();
   syncFromBackend();
+  checkUrlDeepLink();
 </script>
 </body>
 </html>

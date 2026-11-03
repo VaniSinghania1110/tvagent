@@ -333,6 +333,14 @@ function initAuth() {
             if (signupStep2) signupStep2.style.display = "none";
             if (signupStep3) signupStep3.style.display = "block";
             updateStepHeader(3);
+            const curRole = (window.CURRENT_ROLE || "traveller").toLowerCase();
+            if (curRole === "agent") {
+                setTimeout(() => {
+                    if (typeof window.openAgentRegisterModal === "function") {
+                        window.openAgentRegisterModal();
+                    }
+                }, 80);
+            }
         });
     }
 
@@ -362,40 +370,88 @@ function initAuth() {
         const email = emailInput ? emailInput.value.trim().toLowerCase() : "";
         const passwordInput = document.getElementById("reg-password");
         const password = passwordInput ? passwordInput.value : "";
-        const firstName = document.getElementById("first-name") ? document.getElementById("first-name").value.trim() : "";
-        const lastName = document.getElementById("last-name") ? document.getElementById("last-name").value.trim() : "";
-        const username = document.getElementById("username") ? document.getElementById("username").value.trim() : "";
+        const role = (window.CURRENT_ROLE || "traveller").toLowerCase();
 
-        if (!firstName) {
-            showToast("error", "First Name Missing", "Please enter your first name.");
-            return;
-        }
-        if (!lastName) {
-            showToast("error", "Last Name Missing", "Please enter your last name.");
-            return;
-        }
-        if (!username) {
-            showToast("error", "Username Missing", "Please enter a username handle.");
-            return;
+        let reqPayload = {
+            email: email,
+            password: password,
+            role: role
+        };
+
+        if (role === "agent") {
+            const agentLeadName = document.getElementById("agent-lead-name") ? document.getElementById("agent-lead-name").value.trim() : "";
+            const agentAgencyName = document.getElementById("agent-agency-name") ? document.getElementById("agent-agency-name").value.trim() : "";
+            const agentUsername = document.getElementById("agent-username") ? document.getElementById("agent-username").value.trim() : "";
+            const agentType = document.getElementById("agent-type-select") ? document.getElementById("agent-type-select").value : "person";
+            const agentPhone = document.getElementById("agent-phone") ? document.getElementById("agent-phone").value.trim() : "";
+            const agentSpecialty = document.getElementById("agent-specialty") ? document.getElementById("agent-specialty").value.trim() : "";
+            const agentDestinations = document.getElementById("agent-destinations") ? document.getElementById("agent-destinations").value.trim() : "";
+            const agentExperience = document.getElementById("agent-experience") ? parseInt(document.getElementById("agent-experience").value) || 3 : 3;
+            const agentLanguages = document.getElementById("agent-languages") ? document.getElementById("agent-languages").value.trim() : "English";
+            const agentBio = document.getElementById("agent-bio") ? document.getElementById("agent-bio").value.trim() : "";
+
+            if (!agentLeadName) {
+                showToast("error", "Name Required", "Please enter the agent or lead guide name.");
+                return;
+            }
+            if (!agentAgencyName) {
+                showToast("error", "Agency Required", "Please enter the agency or company name.");
+                return;
+            }
+
+            const names = agentLeadName.split(" ");
+            reqPayload.first_name = names[0];
+            reqPayload.last_name = names.slice(1).join(" ") || "Agent";
+            reqPayload.username = agentUsername || agentLeadName.toLowerCase().replace(/\s+/g, "_");
+            reqPayload.agent_name = agentLeadName;
+            reqPayload.agency_name = agentAgencyName;
+            reqPayload.agent_type = agentType;
+            reqPayload.phone = agentPhone;
+            reqPayload.specialty = agentSpecialty || "Custom Expeditions";
+            reqPayload.destinations = agentDestinations || "Global";
+            reqPayload.experience_years = agentExperience;
+            reqPayload.languages = agentLanguages;
+            reqPayload.bio = agentBio;
+            reqPayload.badges = ["Verified Partner Agent"];
+        } else {
+            const firstName = document.getElementById("first-name") ? document.getElementById("first-name").value.trim() : "";
+            const lastName = document.getElementById("last-name") ? document.getElementById("last-name").value.trim() : "";
+            const username = document.getElementById("username") ? document.getElementById("username").value.trim() : "";
+
+            if (!firstName) {
+                showToast("error", "First Name Missing", "Please enter your first name.");
+                return;
+            }
+            if (!lastName) {
+                showToast("error", "Last Name Missing", "Please enter your last name.");
+                return;
+            }
+            if (!username) {
+                showToast("error", "Username Missing", "Please enter a username handle.");
+                return;
+            }
+
+            reqPayload.first_name = firstName;
+            reqPayload.last_name = lastName;
+            reqPayload.username = username;
+            reqPayload.badges = [];
         }
 
         if (completeBtn) {
             completeBtn.disabled = true;
             completeBtn.textContent = "Creating Account…";
         }
+        const popupSubmitBtn = document.getElementById("agent-popup-submit-btn");
+        if (popupSubmitBtn) {
+            popupSubmitBtn.disabled = true;
+            popupSubmitBtn.textContent = "Creating Account…";
+        }
 
         try {
             const response = await fetch(`${API_BASE}/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    first_name: firstName,
-                    last_name: lastName,
-                    username: username,
-                    email: email,
-                    password: password,
-                    badges: []
-                })
+                body: JSON.stringify(reqPayload)
             });
 
             const data = await response.json();
@@ -406,14 +462,17 @@ function initAuth() {
             }
 
             const u = data.user;
+            const assignedRole = data.role || role;
             const newAccount = {
                 firstName: u.first_name,
                 lastName: u.last_name,
                 username: u.username,
                 email: u.email,
+                role: assignedRole,
                 password: password,
                 badges: u.badges || [],
-                profilePic: u.profile_pic || ""
+                profilePic: u.profile_pic || "",
+                agencyName: u.agency_name || ""
             };
 
             const accounts = getAccounts();
@@ -424,10 +483,19 @@ function initAuth() {
             saveAccounts(accounts);
             setActiveSession(newAccount);
 
-            showToast("success", "Account Created!", "Registration complete. Redirecting to dashboard…");
+            localStorage.setItem("travelverse_current_user_role", assignedRole);
+            if (data.agent) {
+                localStorage.setItem("travelverse_agent_profile", JSON.stringify(data.agent));
+            }
+
+            if (typeof window.closeAgentRegisterModal === "function") {
+                window.closeAgentRegisterModal();
+            }
+            const targetPage = (assignedRole === "agent") ? "agent-dashboard.html" : "dashboard.html";
+            showToast("success", "Account Created!", `Registration complete as ${assignedRole}. Redirecting to your portal…`);
             setTimeout(() => {
-                window.location.href = "dashboard.html";
-            }, 1000);
+                window.location.href = targetPage;
+            }, 900);
 
         } catch (err) {
             console.warn("Error completing registration:", err);
@@ -435,7 +503,12 @@ function initAuth() {
         } finally {
             if (completeBtn) {
                 completeBtn.disabled = false;
-                completeBtn.textContent = "Create Account →";
+                completeBtn.textContent = "Complete Registration →";
+            }
+            const popupSubmitBtn = document.getElementById("agent-popup-submit-btn");
+            if (popupSubmitBtn) {
+                popupSubmitBtn.disabled = false;
+                popupSubmitBtn.textContent = "✓ Complete Agent Registration →";
             }
         }
     }
@@ -477,12 +550,14 @@ function initAuth() {
             }
 
             try {
+                const currentRole = (window.CURRENT_ROLE || "traveller").toLowerCase();
                 const response = await fetch(`${API_BASE}/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         email_or_username: emailInput,
-                        password: passwordInput
+                        password: passwordInput,
+                        expected_role: currentRole
                     })
                 });
 
@@ -490,14 +565,22 @@ function initAuth() {
 
                 if (response.ok && data.status === "success") {
                     const u = data.user;
+                    let assignedRole = String(data.role || (u && u.role) || "").toLowerCase();
+                    if (data.agent || (u && (u.agent_id || u.agency_name)) || assignedRole === "agent") {
+                        assignedRole = "agent";
+                    } else {
+                        assignedRole = assignedRole || "traveller";
+                    }
                     const userObj = {
                         firstName: u.first_name,
                         lastName: u.last_name,
                         username: u.username,
                         email: u.email,
+                        role: assignedRole,
                         password: passwordInput,
                         badges: u.badges || [],
-                        profilePic: u.profile_pic || ""
+                        profilePic: u.profile_pic || "",
+                        agencyName: u.agency_name || ""
                     };
 
                     const accounts = getAccounts();
@@ -510,7 +593,13 @@ function initAuth() {
                     saveAccounts(accounts);
 
                     setActiveSession(userObj);
-                    window.location.href = "dashboard.html";
+                    localStorage.setItem("travelverse_current_user_role", assignedRole);
+                    if (data.agent) {
+                        localStorage.setItem("travelverse_agent_profile", JSON.stringify(data.agent));
+                    }
+
+                    const targetPage = (assignedRole === "agent") ? "agent-dashboard.html" : "dashboard.html";
+                    window.location.href = targetPage;
                     return;
                 } else {
                     showToast("error", "Couldn't log you in", data.detail || "The email/username or password you entered is incorrect.");
@@ -525,8 +614,17 @@ function initAuth() {
                 );
 
                 if (matchedUser) {
+                    let assignedRole = String(matchedUser.role || "").toLowerCase();
+                    if (matchedUser.agencyName || matchedUser.agent_id || assignedRole === "agent") {
+                        assignedRole = "agent";
+                    } else {
+                        assignedRole = assignedRole || "traveller";
+                    }
+                    matchedUser.role = assignedRole;
                     setActiveSession(matchedUser);
-                    window.location.href = "dashboard.html";
+                    localStorage.setItem("travelverse_current_user_role", assignedRole);
+                    const targetPage = (assignedRole === "agent") ? "agent-dashboard.html" : "dashboard.html";
+                    window.location.href = targetPage;
                 } else {
                     showToast("error", "Couldn't log you in", "The email/username or password you entered is incorrect.");
                 }
@@ -579,7 +677,8 @@ async function handleSocialSignIn(email, name = "") {
         setActiveSession(existingAccount);
         const googleModal = document.getElementById("google-auth-modal");
         if (googleModal) googleModal.classList.remove("show");
-        window.location.href = "dashboard.html";
+        const isAgent = (existingAccount.role === "agent") || (window.CURRENT_ROLE === "agent") || !!existingAccount.agencyName;
+        window.location.href = isAgent ? "agent-dashboard.html" : "dashboard.html";
         return;
     }
 
@@ -591,12 +690,16 @@ async function handleSocialSignIn(email, name = "") {
             if (data.status === "success" && Array.isArray(data.users)) {
                 const found = data.users.find(u => u && u.email && u.email.toLowerCase() === emailClean);
                 if (found) {
+                    const isAgent = (found.role === "agent") || (window.CURRENT_ROLE === "agent") || !!found.agency_name;
                     const userObj = {
                         firstName: found.first_name,
                         lastName: found.last_name,
                         username: found.username,
                         email: found.email,
                         password: found.password || "travel123",
+                        role: isAgent ? "agent" : (found.role || "traveller"),
+                        agencyName: found.agency_name || "",
+                        agentName: found.agent_name || "",
                         badges: found.badges || [],
                         profilePic: found.profile_pic || ""
                     };
@@ -607,7 +710,7 @@ async function handleSocialSignIn(email, name = "") {
 
                     const googleModal = document.getElementById("google-auth-modal");
                     if (googleModal) googleModal.classList.remove("show");
-                    window.location.href = "dashboard.html";
+                    window.location.href = isAgent ? "agent-dashboard.html" : "dashboard.html";
                     return;
                 }
             }
@@ -615,8 +718,10 @@ async function handleSocialSignIn(email, name = "") {
     } catch (e) {}
 
     // 3. Register new social account if it doesn't exist yet
+    const isAgent = (window.CURRENT_ROLE === "agent");
+    const role = isAgent ? "agent" : "traveller";
     const nameParts = (name || emailClean.split("@")[0]).trim().split(" ");
-    const firstName = nameParts[0] || "Traveler";
+    const firstName = nameParts[0] || (isAgent ? "Agent" : "Traveler");
     const lastName = nameParts.slice(1).join(" ") || "";
     const username = emailClean.split("@")[0].replace(/[^a-zA-Z0-9]/g, "") || "traveler";
 
@@ -626,7 +731,10 @@ async function handleSocialSignIn(email, name = "") {
         username: username,
         email: emailClean,
         password: "social_oauth_password",
-        badges: ["🎒 Backpacker"],
+        role: role,
+        agencyName: isAgent ? `${firstName}'s Agency` : "",
+        agentName: isAgent ? `${firstName} ${lastName}`.trim() : "",
+        badges: isAgent ? ["Verified Partner Agent"] : ["🎒 Backpacker"],
         profilePic: ""
     };
 
@@ -640,7 +748,10 @@ async function handleSocialSignIn(email, name = "") {
                 username: username,
                 email: emailClean,
                 password: "social_oauth_password",
-                badges: ["🎒 Backpacker"]
+                role: role,
+                agency_name: userObj.agencyName,
+                agent_name: userObj.agentName,
+                badges: userObj.badges
             })
         });
     } catch (err) {}
@@ -654,7 +765,7 @@ async function handleSocialSignIn(email, name = "") {
 
     const googleModal = document.getElementById("google-auth-modal");
     if (googleModal) googleModal.classList.remove("show");
-    window.location.href = "dashboard.html";
+    window.location.href = isAgent ? "agent-dashboard.html" : "dashboard.html";
 }
 
 function closeGoogleModal() {
@@ -848,7 +959,79 @@ window.openGoogleModal = openGoogleModal;
 window.closeGoogleModal = closeGoogleModal;
 window.handleGoogleAccountSelection = handleGoogleAccountSelection;
 
+// ---------- Global Agent Modal Functions in auth.js ----------
+if (typeof window.openAgentRegisterModal !== "function") {
+    window.openAgentRegisterModal = function() {
+        const modal = document.getElementById("agent-register-modal");
+        if (modal) {
+            modal.classList.add("show");
+            modal.style.setProperty("display", "flex", "important");
+            modal.style.setProperty("opacity", "1", "important");
+            modal.style.setProperty("visibility", "visible", "important");
+            modal.style.setProperty("pointer-events", "auto", "important");
+            modal.style.setProperty("z-index", "9999999", "important");
+        }
+    };
+}
+
+if (typeof window.closeAgentRegisterModal !== "function") {
+    window.closeAgentRegisterModal = function() {
+        const modal = document.getElementById("agent-register-modal");
+        if (modal) {
+            modal.classList.remove("show");
+            modal.style.setProperty("display", "none", "important");
+            modal.style.setProperty("opacity", "0", "important");
+            modal.style.setProperty("visibility", "hidden", "important");
+            modal.style.setProperty("pointer-events", "none", "important");
+        }
+    };
+}
+
+if (typeof window.submitAgentFromModal !== "function") {
+    window.submitAgentFromModal = function() {
+        const completeBtn = document.getElementById("signup-complete-btn");
+        if (completeBtn) {
+            completeBtn.click();
+        }
+    };
+}
+
+// Bind explicit click on Open Agent Registration Form button
+const openAgentBtn = document.getElementById("open-agent-popup-btn");
+if (openAgentBtn) {
+    openAgentBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.openAgentRegisterModal();
+    });
+}
+
+// Backdrop click closes agent modal
+const agentModalEl = document.getElementById("agent-register-modal");
+if (agentModalEl) {
+    agentModalEl.addEventListener("click", (e) => {
+        if (e.target === agentModalEl) {
+            window.closeAgentRegisterModal();
+        }
+    });
+}
+
 document.addEventListener("click", async (e) => {
+    // Open Agent Registration Modal Button Click
+    if (e.target.closest("#open-agent-popup-btn")) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.openAgentRegisterModal();
+        return;
+    }
+
+    // Close Agent Registration Modal
+    if (e.target.closest("#agent-register-modal .close-btn, #agent-register-modal [onclick*='closeAgentRegisterModal']")) {
+        e.preventDefault();
+        window.closeAgentRegisterModal();
+        return;
+    }
+
     // Continue with Google Button Click (Sign Up Step 1 OTP Bypass)
     if (e.target.closest(".google-auth-btn, #signup-google-quick-btn")) {
         e.preventDefault();
